@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin — Sallon Bella</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080808;--bg2:#0f0f0f;--bg3:#161616;--bg4:#1e1e1e;
+  --gold:#C9A84C;--gold-l:#E8C96D;--gold-m:rgba(201,168,76,0.10);--gold-b:rgba(201,168,76,0.22);
+  --text:#F2EDE6;--muted:#6e6860;--dim:#2e2c28;--border:rgba(255,255,255,0.06);
+  --suc-bg:rgba(90,138,90,.12);--suc-c:#7ab87a;--suc-b:rgba(90,138,90,.2);
+  --err-bg:rgba(138,58,58,.12);--err-c:#c27a7a;--err-b:rgba(138,58,58,.2);
+  --fd:'Cormorant Garamond',serif;--fb:'Jost',sans-serif;--tr:.35s cubic-bezier(.4,0,.2,1);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-weight:300;line-height:1.7;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:#9A7A2E}
+button{font-family:var(--fb);cursor:pointer;border:none;outline:none;background:none}
+input,select{font-family:var(--fb);background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.7rem .9rem;font-size:.8rem;font-weight:300;outline:none;transition:var(--tr);border-radius:3px;width:100%}
+input:focus,select:focus{border-color:var(--gold-b);background:var(--bg4)}
+input::placeholder{color:var(--dim)}
+label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
+
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(201,168,76,.05) 0%,transparent 70%)}
+.lcard{width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border);padding:3rem}
+.llogo{font-family:var(--fd);font-size:2rem;font-weight:300;text-align:center;margin-bottom:.25rem}
+.llogo em{color:var(--gold);font-style:italic}
+.lsub{text-align:center;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:2.5rem}
+.ldiv{width:40px;height:1px;background:var(--gold);margin:0 auto 2.5rem}
+.fgrp{margin-bottom:1rem}
+.lbtn{width:100%;padding:1rem;background:var(--gold);color:var(--bg);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;border-radius:3px;transition:var(--tr);margin-top:.5rem;font-family:var(--fb)}
+.lbtn:hover{background:var(--gold-l)}.lbtn:disabled{opacity:.5}
+.lerr{margin-top:.9rem;padding:.75rem;background:var(--err-bg);border:1px solid var(--err-b);color:var(--err-c);font-size:.72rem;text-align:center;display:none}
+
+#dash-screen{display:none}
+.dlayout{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:2rem 0;position:fixed;width:230px;height:100vh;display:flex;flex-direction:column;overflow-y:auto}
+.sblogo{padding:0 1.5rem 1.8rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+.sblogo-t{font-family:var(--fd);font-size:1.3rem;font-weight:300}
+.sblogo-t em{color:var(--gold);font-style:italic}
+.sbrole{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:.2rem}
+.sbsec{padding:0 1rem;margin-bottom:1.5rem}
+.sbsec-l{font-size:.54rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);padding:0 .5rem;margin-bottom:.5rem}
+.sbnav{list-style:none}
+.sbnav li a{display:flex;align-items:center;gap:.7rem;padding:.6rem .75rem;color:var(--muted);text-decoration:none;font-size:.73rem;border-radius:3px;transition:var(--tr)}
+.sbnav li a:hover{color:var(--text);background:var(--bg3)}
+.sbnav li a.active{color:var(--gold);background:var(--gold-m);border-left:2px solid var(--gold)}
+.sbbot{margin-top:auto;padding:1.5rem 1rem 0;border-top:1px solid var(--border)}
+.logoutbtn{width:100%;display:flex;align-items:center;gap:.7rem;padding:.6rem .75rem;color:var(--muted);font-size:.73rem;border-radius:3px;transition:var(--tr);text-align:left}
+.logoutbtn:hover{color:var(--err-c);background:rgba(138,58,58,.1)}
+.dmain{margin-left:230px;padding:2rem 2.5rem;min-height:100vh}
+.dtopbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.dtitle{font-family:var(--fd);font-size:1.8rem;font-weight:300}
+.ddate{font-size:.7rem;color:var(--muted)}
+.panel{display:none}.panel.active{display:block}
+
+.kgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.kgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+.kcard{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;position:relative;overflow:hidden;transition:var(--tr)}
+.kcard:hover{border-color:var(--gold-b)}
+.kcard::after{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--gold)}
+.klbl{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:.7rem}
+.kval{font-family:var(--fd);font-size:1.9rem;font-weight:400;line-height:1;margin-bottom:.4rem}
+.kval.g{color:var(--gold)}
+.ksub{font-size:.65rem;color:var(--muted)}
+
+.cgrid{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem}
+.ccard{background:var(--bg2);border:1px solid var(--border);padding:1.5rem}
+.ctitle{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.5rem}
+
+.tcard{background:var(--bg2);border:1px solid var(--border);overflow:hidden;margin-bottom:1.5rem}
+.thead2{padding:1.1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ttitle{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rbtn{padding:.3rem .75rem;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:2px;transition:var(--tr)}
+.rbtn:hover{border-color:var(--gold-b);color:var(--gold)}
+.dtable{width:100%;border-collapse:collapse}
+.dtable th{padding:.7rem 1.5rem;text-align:left;font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--border);font-weight:500}
+.dtable td{padding:.9rem 1.5rem;font-size:.76rem;color:var(--muted);border-bottom:1px solid var(--border);vertical-align:middle}
+.dtable tr:last-child td{border-bottom:none}
+.dtable tr:hover td{background:var(--bg3);color:var(--text)}
+.badge{display:inline-block;padding:.22rem .55rem;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;border-radius:2px}
+.bc{background:var(--suc-bg);color:var(--suc-c);border:1px solid var(--suc-b)}
+.bx{background:var(--err-bg);color:var(--err-c);border:1px solid var(--err-b)}
+.bk{background:var(--gold-m);color:var(--gold);border:1px solid var(--gold-b)}
+.abtn{padding:.28rem .6rem;font-size:.58rem;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:2px;cursor:pointer;transition:var(--tr);margin-right:.25rem;font-family:var(--fb)}
+.abtn:hover{border-color:var(--gold-b);color:var(--gold)}
+.abtn.cx:hover{border-color:var(--err-b);color:var(--err-c)}
+.empty{padding:2.5rem;text-align:center;color:var(--dim);font-size:.75rem}
+.loading{display:flex;align-items:center;justify-content:center;padding:2.5rem;color:var(--dim);font-size:.73rem;gap:.75rem}
+.spin{width:14px;height:14px;border:1px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="lcard">
+    <div class="llogo">Sallon<em>Bella</em></div>
+    <div class="lsub">Panel Administrativo</div>
+    <div class="ldiv"></div>
+    <form id="lform">
+      <div class="fgrp"><label>Email</label><input type="email" id="lemail" placeholder="admin@sallonbella.com" required></div>
+      <div class="fgrp"><label>Contrasena</label><input type="password" id="lpass" placeholder="..." required></div>
+      <button type="submit" class="lbtn" id="lbtn">Ingresar</button>
+      <div class="lerr" id="lerr"></div>
+    </form>
+  </div>
+</div>
+
+<div id="dash-screen">
+  <div class="dlayout">
+    <aside class="sidebar">
+      <div class="sblogo"><div class="sblogo-t">Sallon<em>Bella</em></div><div class="sbrole">Panel Administrativo</div></div>
+      <div class="sbsec">
+        <div class="sbsec-l">Principal</div>
+        <ul class="sbnav">
+          <li><a href="#" class="active" data-panel="pr" data-title="Resumen del dia">Resumen</a></li>
+          <li><a href="#" data-panel="pa" data-title="Reservas activas">Reservas activas</a></li>
+          <li><a href="#" data-panel="pc" data-title="Cancelaciones">Cancelaciones</a></li>
+        </ul>
+      </div>
+      <div class="sbsec">
+        <div class="sbsec-l">Metricas</div>
+        <ul class="sbnav">
+          <li><a href="#" data-panel="pi" data-title="Ingresos">Ingresos</a></li>
+          <li><a href="#" data-panel="pp" data-title="Proyeccion">Proyeccion</a></li>
+        </ul>
+      </div>
+      <div class="sbbot"><button class="logoutbtn" id="lout">Cerrar sesion</button></div>
+    </aside>
+    <main class="dmain">
+      <div class="dtopbar">
+        <h1 class="dtitle" id="ptitle">Resumen del dia</h1>
+        <span class="ddate" id="ddate"></span>
+      </div>
+
+      <div class="panel active" id="pr">
+        <div class="kgrid">
+          <div class="kcard"><div class="klbl">Citas hoy</div><div class="kval" id="khoy">—</div><div class="ksub">turnos confirmados</div></div>
+          <div class="kcard"><div class="klbl">Ingresos esperados hoy</div><div class="kval g" id="kinghoy">—</div><div class="ksub">en citas de hoy</div></div>
+          <div class="kcard"><div class="klbl">Reservas activas</div><div class="kval" id="kact">—</div><div class="ksub">total confirmadas</div></div>
+          <div class="kcard"><div class="klbl">Ingresos del mes</div><div class="kval g" id="kmes">—</div><div class="ksub">citas completadas</div></div>
+        </div>
+        <div class="cgrid">
+          <div class="ccard"><div class="ctitle">Ingresos ultimos 7 dias</div><canvas id="cd" height="180"></canvas></div>
+          <div class="ccard"><div class="ctitle">Servicios por demanda</div><canvas id="cs" height="180"></canvas></div>
+        </div>
+      </div>
+
+      <div class="panel" id="pa">
+        <div class="tcard">
+          <div class="thead2"><span class="ttitle">Reservas confirmadas</span><button class="rbtn" onclick="loadActivas()">Actualizar</button></div>
+          <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha y hora</th><th>Telefono</th><th>Canal</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tba"></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="panel" id="pc">
+        <div class="tcard">
+          <div class="thead2"><span class="ttitle">Historial de cancelaciones</span><button class="rbtn" onclick="loadCancel()">Actualizar</button></div>
+          <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha y hora</th><th>Telefono</th><th>Estado</th></tr></thead><tbody id="tbc"></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="panel" id="pi">
+        <div class="ccard" style="margin-bottom:1rem"><div class="ctitle">Ingresos mensuales ultimos 6 meses</div><canvas id="cm" height="120"></canvas></div>
+        <div class="cgrid">
+          <div class="ccard"><div class="ctitle">Ultimos 7 dias</div><canvas id="cd2" height="160"></canvas></div>
+          <div class="ccard"><div class="ctitle">Por servicio</div><canvas id="cs2" height="160"></canvas></div>
+        </div>
+      </div>
+
+      <div class="panel" id="pp">
+        <div class="kgrid3">
+          <div class="kcard"><div class="klbl">Citas futuras confirmadas</div><div class="kval" id="pcitas">—</div><div class="ksub">proximos 30 dias</div></div>
+          <div class="kcard"><div class="klbl">Ingresos proyectados</div><div class="kval g" id="ping">—</div><div class="ksub">por citas ya agendadas</div></div>
+          <div class="kcard"><div class="klbl">Promedio mensual historico</div><div class="kval g" id="pprom">—</div><div class="ksub">basado en historial</div></div>
+        </div>
+        <div class="tcard">
+          <div class="thead2"><span class="ttitle">Proximas citas confirmadas</span></div>
+          <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>Fecha y hora</th><th>Servicio</th><th>Cliente</th><th>Ingreso esperado</th></tr></thead><tbody id="tbp"></tbody></table></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+var SB_URL = 'https://glczaecmkniqdmqkvfxc.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsY3phZWNta25pcWRtcWt2ZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1OTEyNDcsImV4cCI6MjA5MzE2NzI0N30.2i8E4KX_ocyca-yRT_4fG6y85dpH3J-0f6gOsmn-O2c';
+var TZ = 'America/Argentina/Buenos_Aires';
+var sb = supabase.createClient(SB_URL, SB_KEY);
+var charts = {};
+
+function fmt$(n){return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS'}).format(n||0);}
+function fmtD(iso){if(!iso)return '--';return new Date(iso).toLocaleString('es-AR',{timeZone:TZ,day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function today(){return new Date().toLocaleDateString('en-CA',{timeZone:TZ});}
+function load(id,cols){return '<tr><td colspan="'+cols+'" class="loading"><div class="spin"></div>Cargando...</td></tr>';}
+function empty(id,cols,msg){return '<tr><td colspan="'+cols+'" class="empty">'+(msg||'Sin datos')+'</td></tr>';}
+
+// AUTH
+document.getElementById('lform').addEventListener('submit', async function(e){
+  e.preventDefault();
+  var btn=document.getElementById('lbtn');
+  var err=document.getElementById('lerr');
+  btn.disabled=true; btn.textContent='Verificando...'; err.style.display='none';
+  var r=await sb.auth.signInWithPassword({email:document.getElementById('lemail').value.trim(),password:document.getElementById('lpass').value});
+  if(r.error){err.textContent='Credenciales incorrectas.';err.style.display='block';btn.disabled=false;btn.textContent='Ingresar';}
+  else showDash();
+});
+
+document.getElementById('lout').addEventListener('click',async function(){
+  await sb.auth.signOut();
+  document.getElementById('dash-screen').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+});
+
+async function checkSession(){
+  var s=await sb.auth.getSession();
+  if(s.data&&s.data.session) showDash();
+  else document.getElementById('login-screen').style.display='flex';
+}
+
+function showDash(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('dash-screen').style.display='block';
+  document.getElementById('ddate').textContent=new Date().toLocaleDateString('es-AR',{timeZone:TZ,weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  loadAll();
+}
+
+// NAV
+document.querySelectorAll('.sbnav a').forEach(function(a){
+  a.addEventListener('click',function(e){
+    e.preventDefault();
+    document.querySelectorAll('.sbnav a').forEach(function(x){x.classList.remove('active');});
+    a.classList.add('active');
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+    var el=document.getElementById(a.dataset.panel);
+    if(el) el.classList.add('active');
+    document.getElementById('ptitle').textContent=a.dataset.title||'Dashboard';
+  });
+});
+
+function loadAll(){loadKPIs();loadCharts();loadActivas();loadCancel();loadProyeccion();}
+
+// KPIs
+async function loadKPIs(){
+  var hoy=today();
+  var r1=await sb.from('vista_metricas').select('precio_servicio').eq('fecha',hoy).neq('estado','cancelado');
+  var ch=r1.data||[];
+  var r2=await sb.from('citas').select('id',{count:'exact',head:true}).eq('estado','confirmado');
+  var d1=new Date();d1.setDate(1);d1.setHours(0,0,0,0);
+  var r3=await sb.from('vista_metricas').select('precio_servicio').eq('estado','completado').gte('fecha_hora_local',d1.toISOString());
+  document.getElementById('khoy').textContent=ch.length;
+  document.getElementById('kinghoy').textContent=fmt$(ch.reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+  document.getElementById('kact').textContent=r2.count||0;
+  document.getElementById('kmes').textContent=fmt$((r3.data||[]).reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+}
+
+// CHARTS
+function mkChart(id,type,labels,data){
+  if(charts[id]){charts[id].destroy();}
+  var ctx=document.getElementById(id);
+  if(!ctx)return;
+  charts[id]=new Chart(ctx,{
+    type:type,
+    data:{labels:labels,datasets:[{data:data,
+      backgroundColor:type==='doughnut'?['rgba(201,168,76,.7)','rgba(201,168,76,.45)','rgba(201,168,76,.25)','rgba(201,168,76,.12)']:'rgba(201,168,76,.15)',
+      borderColor:type==='doughnut'?'rgba(201,168,76,.3)':'rgba(201,168,76,.8)',
+      borderWidth:type==='line'?2:1,borderRadius:type==='bar'?2:0,
+      pointBackgroundColor:'rgba(201,168,76,1)',pointRadius:type==='line'?4:0,tension:.3,fill:type==='line'
+    }]},
+    options:{responsive:true,plugins:{legend:{display:type==='doughnut',labels:{color:'#888',font:{size:10},padding:12}}},
+      scales:type!=='doughnut'?{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#888',font:{size:9}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#888',font:{size:9},callback:function(v){return '$'+v.toLocaleString('es-AR');}}}}:{}}
+  });
+}
+
+async function loadCharts(){
+  var meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  var lD=[],vD=[];
+  for(var i=6;i>=0;i--){
+    var d=new Date();d.setDate(d.getDate()-i);
+    var f=d.toLocaleDateString('en-CA',{timeZone:TZ});
+    lD.push(d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric'}));
+    var r=await sb.from('vista_metricas').select('precio_servicio').eq('fecha',f).eq('estado','completado');
+    vD.push((r.data||[]).reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+  }
+  mkChart('cd','bar',lD,vD);mkChart('cd2','bar',lD,vD);
+  var rs=await sb.from('vista_metricas').select('servicio').neq('estado','cancelado');
+  if(rs.data&&rs.data.length){
+    var cnt={};rs.data.forEach(function(c){cnt[c.servicio]=(cnt[c.servicio]||0)+1;});
+    var s=Object.entries(cnt).sort(function(a,b){return b[1]-a[1];});
+    mkChart('cs','doughnut',s.map(function(x){return x[0];}),s.map(function(x){return x[1];}));
+    mkChart('cs2','doughnut',s.map(function(x){return x[0];}),s.map(function(x){return x[1];}));
+  }
+  var lM=[],vM=[];
+  for(var j=5;j>=0;j--){
+    var dm=new Date();dm.setMonth(dm.getMonth()-j);
+    var mes=dm.getMonth()+1;var anio=dm.getFullYear();
+    lM.push(meses[dm.getMonth()]+' '+anio);
+    var rm=await sb.from('vista_metricas').select('precio_servicio').eq('estado','completado').gte('fecha_hora_local',new Date(anio,mes-1,1).toISOString()).lt('fecha_hora_local',new Date(anio,mes,1).toISOString());
+    vM.push((rm.data||[]).reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+  }
+  mkChart('cm','line',lM,vM);
+}
+
+// ACTIVAS
+async function loadActivas(){
+  var tb=document.getElementById('tba');
+  tb.innerHTML=load('',7);
+  var r=await sb.from('vista_metricas').select('*').eq('estado','confirmado').order('fecha_hora_local',{ascending:true});
+  if(!r.data||!r.data.length){tb.innerHTML=empty('',7,'No hay reservas activas');return;}
+  tb.innerHTML=r.data.map(function(c){
+    return '<tr><td style="color:var(--text)">'+c.nombre_completo+'</td><td>'+c.servicio+'</td><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+(c.telefono||'--')+'</td><td style="font-size:.65rem">'+(c.medio_reserva==='formulario'?'Web':'WhatsApp')+'</td><td><span class="badge bc">Confirmado</span></td><td>'+
+      '<button class="abtn" onclick="cambiar(''+c.id+'','completado')">Completar</button>'+
+      '<button class="abtn cx" onclick="cambiar(''+c.id+'','cancelado')">Cancelar</button></td></tr>';
+  }).join('');
+}
+
+// CANCELADOS
+async function loadCancel(){
+  var tb=document.getElementById('tbc');
+  tb.innerHTML=load('',5);
+  var r=await sb.from('vista_metricas').select('*').eq('estado','cancelado').order('fecha_hora_local',{ascending:false}).limit(50);
+  if(!r.data||!r.data.length){tb.innerHTML=empty('',5,'No hay cancelaciones');return;}
+  tb.innerHTML=r.data.map(function(c){
+    return '<tr><td style="color:var(--text)">'+c.nombre_completo+'</td><td>'+c.servicio+'</td><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+(c.telefono||'--')+'</td><td><span class="badge bx">Cancelado</span></td></tr>';
+  }).join('');
+}
+
+// PROYECCION
+async function loadProyeccion(){
+  var hoy=new Date();var en30=new Date();en30.setDate(hoy.getDate()+30);
+  var rf=await sb.from('vista_metricas').select('precio_servicio,fecha_hora_local,servicio,nombre_completo').eq('estado','confirmado').gte('fecha_hora_local',hoy.toISOString()).lte('fecha_hora_local',en30.toISOString());
+  var fut=rf.data||[];
+  var rh=await sb.from('vista_metricas').select('precio_servicio').eq('estado','completado');
+  var hist=rh.data||[];
+  document.getElementById('pcitas').textContent=fut.length;
+  document.getElementById('ping').textContent=fmt$(fut.reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+  document.getElementById('pprom').textContent=fmt$(hist.length?hist.reduce(function(s,c){return s+(c.precio_servicio||0);},0)/6:0);
+  var tb=document.getElementById('tbp');
+  if(!fut.length){tb.innerHTML=empty('',4,'No hay citas futuras confirmadas');return;}
+  tb.innerHTML=fut.slice(0,15).map(function(c){
+    return '<tr><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+c.servicio+'</td><td>'+c.nombre_completo+'</td><td style="color:var(--gold)">'+fmt$(c.precio_servicio)+'</td></tr>';
+  }).join('');
+}
+
+// CAMBIAR ESTADO
+async function cambiar(id,estado){
+  if(!confirm(estado==='completado'?'Marcar como completada?':'Cancelar esta cita?'))return;
+  var r=await sb.from('citas').update({estado:estado}).eq('id',id);
+  if(!r.error){loadActivas();if(estado==='cancelado')loadCancel();loadKPIs();}
+  else alert('Error al actualizar.');
+}
+
+window.loadActivas=loadActivas;
+window.loadCancel=loadCancel;
+window.cambiar=cambiar;
+
+checkSession();
+</script>
+</body>
+</html>
