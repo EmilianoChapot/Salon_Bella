@@ -706,7 +706,7 @@ sbFetch('servicios', 'select=*&activo=eq.true&order=nombre').then(function(data)
 
   var hsel = document.getElementById('f-hora');
   for (var h = 9; h < 19; h++) {
-    ['00','30'].forEach(function(m) {
+    ['00'].forEach(function(m) {
       var v = String(h).padStart(2,'0') + ':' + m;
       hsel.innerHTML += '<option value="' + v + '">' + v + ' hs</option>';
     });
