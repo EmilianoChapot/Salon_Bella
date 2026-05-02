@@ -525,9 +525,9 @@ const CAR_IMGS = [
   'https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=500&q=80',
   'https://images.unsplash.com/photo-1554519515-242161756769?w=500&q=80',
   'https://images.unsplash.com/photo-1523263685509-57c1d050d19b?w=500&q=80',
-  'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=500&q=80',
+  'https://images.unsplash.com/photo-1626954079673-f3c3a7c9a23e?w=500&q=80',
   'https://images.unsplash.com/photo-1470259078422-826894b933aa?w=500&q=80',
-  'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=500&q=80',
+  'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500&q=80',
   'https://images.unsplash.com/photo-1634449571010-02389ed0f9b0?w=500&q=80'
 ];
 
@@ -704,18 +704,121 @@ sbFetch('servicios', 'select=*&activo=eq.true&order=nombre').then(function(data)
   var btn = document.getElementById('f-btn');
   if (!form) return;
 
-  var hsel = document.getElementById('f-hora');
-  for (var h = 9; h < 19; h++) {
-    ['00'].forEach(function(m) {
-      var v = String(h).padStart(2,'0') + ':' + m;
-      hsel.innerHTML += '<option value="' + v + '">' + v + ' hs</option>';
-    });
-  }
-
+  // Fecha mínima = mañana
   var fd = document.getElementById('f-fecha');
   var tm = new Date();
   tm.setDate(tm.getDate() + 1);
   fd.min = tm.toISOString().split('T')[0];
+
+  // Duración en minutos por servicio (se actualiza cuando carga desde Supabase)
+  var DURACION_SERVICIO = 60; // default
+
+  // Generar slots de horario según duración del servicio
+  // Salón abierto 9:00 a 19:00, último turno debe terminar antes de las 19:00
+  function generarSlots(duracionMin) {
+    var slots = [];
+    var inicioMin = 9 * 60;      // 9:00 = 540 min
+    var cierreMin = 19 * 60;     // 19:00 = 1140 min
+    var cursor = inicioMin;
+    while (cursor + duracionMin <= cierreMin) {
+      var h = Math.floor(cursor / 60);
+      var m = cursor % 60;
+      slots.push(String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0'));
+      cursor += duracionMin;
+    }
+    return slots;
+  }
+
+  // Cargar horarios disponibles según servicio + fecha seleccionada
+  async function cargarHorariosDisponibles() {
+    var sselEl = document.getElementById('f-serv');
+    var sid = sselEl.value;
+    var fecha = document.getElementById('f-fecha').value;
+    var hsel = document.getElementById('f-hora');
+
+    hsel.innerHTML = '<option value="">Selecciona un horario</option>';
+    if (!sid || !fecha) return;
+
+    hsel.innerHTML = '<option value="">Consultando disponibilidad...</option>';
+    hsel.disabled = true;
+
+    try {
+      // Obtener duración del servicio seleccionado desde Supabase
+      var rServ = await fetch(SB_URL + '/rest/v1/servicios?id=eq.' + sid + '&select=duracion_minutos', {
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+      });
+      var servData = await rServ.json();
+      var duracion = (servData && servData[0]) ? servData[0].duracion_minutos : 60;
+      DURACION_SERVICIO = duracion;
+
+      // Generar slots según duración
+      var slots = generarSlots(duracion);
+
+      // Consultar citas confirmadas para ese servicio en esa fecha
+      var desde = new Date(fecha + 'T00:00:00-03:00').toISOString();
+      var hasta = new Date(fecha + 'T23:59:59-03:00').toISOString();
+      var rCitas = await fetch(
+        SB_URL + '/rest/v1/citas?select=fecha_hora&servicio_id=eq.' + sid +
+        '&estado=eq.confirmado&fecha_hora=gte.' + encodeURIComponent(desde) +
+        '&fecha_hora=lte.' + encodeURIComponent(hasta),
+        { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY } }
+      );
+      var citasOcupadas = await rCitas.json();
+
+      // Convertir fechas ocupadas a formato HH:MM en timezone Argentina
+      var horasOcupadas = (citasOcupadas || []).map(function(c) {
+        return new Date(c.fecha_hora).toLocaleTimeString('es-AR', {
+          timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false
+        });
+      });
+
+      // Construir opciones
+      hsel.innerHTML = '<option value="">Selecciona un horario</option>';
+      var hayAlguno = false;
+
+      slots.forEach(function(slot) {
+        var ocupado = horasOcupadas.indexOf(slot) >= 0;
+        var opt = document.createElement('option');
+        opt.value = slot;
+        if (ocupado) {
+          opt.textContent = slot + ' hs — No disponible';
+          opt.disabled = true;
+          opt.style.color = '#444';
+        } else {
+          opt.textContent = slot + ' hs';
+          hayAlguno = true;
+        }
+        hsel.appendChild(opt);
+      });
+
+      if (!hayAlguno) {
+        hsel.innerHTML = '<option value="">Sin turnos disponibles para esta fecha</option>';
+      }
+
+    } catch(e) {
+      // Fallback: slots cada 60 min sin filtro
+      var slotsDefault = generarSlots(60);
+      hsel.innerHTML = '<option value="">Selecciona un horario</option>';
+      slotsDefault.forEach(function(s) {
+        hsel.innerHTML += '<option value="' + s + '">' + s + ' hs</option>';
+      });
+    }
+    hsel.disabled = false;
+  }
+
+  // Deshabilitar fechas pasadas y consultar cuando cambia servicio o fecha
+  document.getElementById('f-serv').addEventListener('change', function() {
+    document.getElementById('f-hora').innerHTML = '<option value="">Primero selecciona una fecha</option>';
+    if (document.getElementById('f-fecha').value) cargarHorariosDisponibles();
+  });
+
+  document.getElementById('f-fecha').addEventListener('change', function() {
+    cargarHorariosDisponibles();
+  });
+
+  // Init horarios vacío
+  var hsel = document.getElementById('f-hora');
+  hsel.innerHTML = '<option value="">Primero selecciona servicio y fecha</option>';
 
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -765,13 +868,7 @@ sbFetch('servicios', 'select=*&activo=eq.true&order=nombre').then(function(data)
       msg.textContent = 'Reserva confirmada! Te enviamos los detalles a ' + email + ' y por WhatsApp.';
       msg.className = 'f-msg ok';
       form.reset();
-      hsel.innerHTML = '<option value="">Selecciona</option>';
-      for (var h2 = 9; h2 < 19; h2++) {
-        ['00','30'].forEach(function(m) {
-          var v = String(h2).padStart(2,'0') + ':' + m;
-          hsel.innerHTML += '<option value="' + v + '">' + v + ' hs</option>';
-        });
-      }
+      document.getElementById('f-hora').innerHTML = '<option value="">Primero selecciona servicio y fecha</option>';
     } catch(err) {
       msg.textContent = 'Error al enviar. Intenta por WhatsApp.';
       msg.className = 'f-msg err';
