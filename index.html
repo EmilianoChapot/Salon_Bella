@@ -525,9 +525,9 @@ const CAR_IMGS = [
   'https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=500&q=80',
   'https://images.unsplash.com/photo-1554519515-242161756769?w=500&q=80',
   'https://images.unsplash.com/photo-1523263685509-57c1d050d19b?w=500&q=80',
-  'https://images.unsplash.com/photo-1626954079673-f3c3a7c9a23e?w=500&q=80',
+  'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=500&q=80',
   'https://images.unsplash.com/photo-1470259078422-826894b933aa?w=500&q=80',
-  'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500&q=80',
+  'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=500&q=80',
   'https://images.unsplash.com/photo-1634449571010-02389ed0f9b0?w=500&q=80'
 ];
 
@@ -704,11 +704,57 @@ sbFetch('servicios', 'select=*&activo=eq.true&order=nombre').then(function(data)
   var btn = document.getElementById('f-btn');
   if (!form) return;
 
-  // Fecha mínima = mañana
+  // ═══ CALENDARIO PERSONALIZADO ═══
+  // Feriados nacionales Argentina 2026
+  var FERIADOS = [
+    '2026-01-01','2026-02-16','2026-02-17','2026-03-24',
+    '2026-04-02','2026-04-03','2026-05-01','2026-05-25',
+    '2026-06-15','2026-06-20','2026-07-09','2026-08-17',
+    '2026-10-12','2026-11-20','2026-12-08','2026-12-25'
+  ];
+
+  function esFechaValida(fechaStr) {
+    var d = new Date(fechaStr + 'T12:00:00');
+    var dia = d.getDay(); // 0=Dom, 1=Lun, 6=Sab
+    if (dia === 0 || dia === 6) return false; // Fin de semana
+    if (FERIADOS.indexOf(fechaStr) >= 0) return false; // Feriado
+    return true;
+  }
+
+  function proximoHabilDesde(fecha) {
+    var d = new Date(fecha + 'T12:00:00');
+    d.setDate(d.getDate() + 1);
+    var str = d.toISOString().split('T')[0];
+    var intentos = 0;
+    while (!esFechaValida(str) && intentos < 30) {
+      d.setDate(d.getDate() + 1);
+      str = d.toISOString().split('T')[0];
+      intentos++;
+    }
+    return str;
+  }
+
+  // Configurar input de fecha
   var fd = document.getElementById('f-fecha');
-  var tm = new Date();
-  tm.setDate(tm.getDate() + 1);
-  fd.min = tm.toISOString().split('T')[0];
+  var hoy = new Date().toISOString().split('T')[0];
+  fd.min = proximoHabilDesde(hoy);
+
+  // Bloquear sábados, domingos y feriados en el input date
+  fd.addEventListener('input', function() {
+    var val = fd.value;
+    if (!val) return;
+    if (!esFechaValida(val)) {
+      var motivo = FERIADOS.indexOf(val) >= 0 ? 'feriado nacional' : 'fin de semana';
+      alert('El salon no trabaja ese dia (' + motivo + '). Por favor elegí un dia habil.');
+      fd.value = '';
+      document.getElementById('f-hora').innerHTML = '<option value="">Primero selecciona servicio y fecha</option>';
+    }
+  });
+
+  // Hacer que el click en cualquier parte del campo abra el calendario
+  fd.addEventListener('click', function() {
+    try { fd.showPicker(); } catch(e) {}
+  });
 
   // Duración en minutos por servicio (se actualiza cuando carga desde Supabase)
   var DURACION_SERVICIO = 60; // default
