@@ -508,7 +508,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border)}
 // ═══ CONFIG ═══
 const SB_URL = 'https://glczaecmkniqdmqkvfxc.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsY3phZWNta25pcWRtcWt2ZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1OTEyNDcsImV4cCI6MjA5MzE2NzI0N30.2i8E4KX_ocyca-yRT_4fG6y85dpH3J-0f6gOsmn-O2c';
-const WH_URL = 'https://rigran.app.n8n.cloud/webhook-test/reserva-formulario';
+const WH_URL = 'https://rigran.app.n8n.cloud/webhook/reserva-formulario';
 const WA_NUM = '5491100000000';
 const SVCS_FB = [
   {id:'1',nombre:'Corte',descripcion:'Corte de cabello femenino o masculino',duracion_minutos:45,precio:3500},
@@ -789,9 +789,16 @@ sbFetch('servicios', 'select=*&activo=eq.true&order=nombre').then(function(data)
     hsel.disabled = true;
 
     try {
-      // Obtener duración del servicio seleccionado desde Supabase
+      // Obtener duración del servicio - fetch directo sin librería Supabase
+      var headersSupabase = {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json'
+      };
+
       var rServ = await fetch(SB_URL + '/rest/v1/servicios?id=eq.' + sid + '&select=duracion_minutos', {
-        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+        method: 'GET',
+        headers: headersSupabase
       });
       var servData = await rServ.json();
       var duracion = (servData && servData[0]) ? servData[0].duracion_minutos : 60;
@@ -800,18 +807,20 @@ sbFetch('servicios', 'select=*&activo=eq.true&order=nombre').then(function(data)
       // Generar slots según duración
       var slots = generarSlots(duracion);
 
-      // Consultar citas confirmadas para ese servicio en esa fecha
+      // Consultar citas ocupadas - fetch directo
       var desde = new Date(fecha + 'T00:00:00-03:00').toISOString();
       var hasta = new Date(fecha + 'T23:59:59-03:00').toISOString();
-      var rCitas = await fetch(
-        SB_URL + '/rest/v1/citas?select=fecha_hora&servicio_id=eq.' + sid +
+      var urlCitas = SB_URL + '/rest/v1/citas?select=fecha_hora&servicio_id=eq.' + sid +
         '&estado=eq.confirmado&fecha_hora=gte.' + encodeURIComponent(desde) +
-        '&fecha_hora=lte.' + encodeURIComponent(hasta),
-        { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY } }
-      );
+        '&fecha_hora=lte.' + encodeURIComponent(hasta);
+
+      var rCitas = await fetch(urlCitas, {
+        method: 'GET',
+        headers: headersSupabase
+      });
       var citasOcupadas = await rCitas.json();
 
-      // Convertir fechas ocupadas a formato HH:MM en timezone Argentina
+      // Convertir fechas ocupadas a HH:MM en timezone Argentina
       var horasOcupadas = (citasOcupadas || []).map(function(c) {
         return new Date(c.fecha_hora).toLocaleTimeString('es-AR', {
           timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false
@@ -889,7 +898,12 @@ sbFetch('servicios', 'select=*&activo=eq.true&order=nombre').then(function(data)
     btn.disabled = true;
     btn.textContent = 'Verificando disponibilidad...';
 
-    var exist = await sbFetch('citas', 'select=id&servicio_id=eq.' + sid + '&fecha_hora=eq.' + encodeURIComponent(iso) + '&estado=eq.confirmado');
+    // Verificar disponibilidad con fetch directo
+    var rExist = await fetch(SB_URL + '/rest/v1/citas?select=id&servicio_id=eq.' + sid + '&fecha_hora=eq.' + encodeURIComponent(iso) + '&estado=eq.confirmado', {
+      method: 'GET',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    var exist = await rExist.json();
     if (exist && exist.length) {
       msg.textContent = 'El horario ' + hora + ' hs ya esta ocupado para ' + snm + '. Elegi otro.';
       msg.className = 'f-msg err';
