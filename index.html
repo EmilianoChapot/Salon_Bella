@@ -888,8 +888,41 @@ sbFetch('servicios', 'select=*&activo=eq.true&order=nombre').then(function(data)
     var snm = ssel.selectedOptions[0] ? ssel.selectedOptions[0].dataset.n : '';
     var notas = document.getElementById('f-notas').value.trim();
 
-    if (!nombre || !email || !tel || !fecha || !hora || !sid) {
-      msg.textContent = 'Por favor completa todos los campos.';
+    // ── Validaciones campo por campo ──
+    var errores = [];
+
+    if (!nombre) {
+      errores.push('El campo Nombre completo es obligatorio.');
+    } else if (nombre.length < 3) {
+      errores.push('El nombre debe tener al menos 3 caracteres.');
+    }
+
+    if (!email) {
+      errores.push('El campo Email es obligatorio.');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errores.push('El email no tiene un formato válido (ejemplo: tu@email.com).');
+    }
+
+    if (!tel) {
+      errores.push('El campo Teléfono es obligatorio.');
+    } else if (!/^[\d\s\-\+\(\)]{7,15}$/.test(tel)) {
+      errores.push('El teléfono no es válido. Ingresá solo números (ej: 3498445587).');
+    }
+
+    if (!sid) {
+      errores.push('Seleccioná un servicio.');
+    }
+
+    if (!fecha) {
+      errores.push('Seleccioná una fecha.');
+    }
+
+    if (!hora) {
+      errores.push('Seleccioná un horario disponible.');
+    }
+
+    if (errores.length > 0) {
+      msg.innerHTML = errores.map(function(e) { return '• ' + e; }).join('<br>');
       msg.className = 'f-msg err';
       return;
     }
