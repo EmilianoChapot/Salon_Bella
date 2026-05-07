@@ -1,437 +1,1079 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://cdn.jsdelivr.net; default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; font-src *; img-src * data: blob:; connect-src *;">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Admin — Sallon Bella</title>
-<meta name="robots" content="noindex,nofollow">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#080808;--bg2:#0f0f0f;--bg3:#161616;--bg4:#1e1e1e;
-  --gold:#C9A84C;--gold-l:#E8C96D;--gold-m:rgba(201,168,76,0.10);--gold-b:rgba(201,168,76,0.22);
-  --text:#F2EDE6;--muted:#6e6860;--dim:#2e2c28;--border:rgba(255,255,255,0.06);
-  --suc-bg:rgba(90,138,90,.12);--suc-c:#7ab87a;--suc-b:rgba(90,138,90,.2);
-  --err-bg:rgba(138,58,58,.12);--err-c:#c27a7a;--err-b:rgba(138,58,58,.2);
-  --fd:'Cormorant Garamond',serif;--fb:'Jost',sans-serif;--tr:.35s cubic-bezier(.4,0,.2,1);
-}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--fb);font-weight:300;line-height:1.7;-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:#9A7A2E}
-button{font-family:var(--fb);cursor:pointer;border:none;outline:none;background:none}
-input,select{font-family:var(--fb);background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.7rem .9rem;font-size:.8rem;font-weight:300;outline:none;transition:var(--tr);border-radius:3px;width:100%}
-input:focus,select:focus{border-color:var(--gold-b);background:var(--bg4)}
-input::placeholder{color:var(--dim)}
-label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(201,168,76,.05) 0%,transparent 70%)}
-.lcard{width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border);padding:3rem}
-.llogo{font-family:var(--fd);font-size:2rem;font-weight:300;text-align:center;margin-bottom:.25rem}
-.llogo em{color:var(--gold);font-style:italic}
-.lsub{text-align:center;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:2.5rem}
-.ldiv{width:40px;height:1px;background:var(--gold);margin:0 auto 2.5rem}
-.fgrp{margin-bottom:1rem}
-.lbtn{width:100%;padding:1rem;background:var(--gold);color:var(--bg);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;border-radius:3px;transition:var(--tr);margin-top:.5rem;font-family:var(--fb);cursor:pointer;border:none}
-.lbtn:hover{background:var(--gold-l)}.lbtn:disabled{opacity:.5;cursor:not-allowed}
-.lerr{margin-top:.9rem;padding:.75rem;background:var(--err-bg);border:1px solid var(--err-b);color:var(--err-c);font-size:.72rem;text-align:center;display:none;border-radius:3px}
-#dash-screen{display:none}
-.dlayout{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
-.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:2rem 0;position:fixed;width:230px;height:100vh;display:flex;flex-direction:column;overflow-y:auto}
-.sblogo{padding:0 1.5rem 1.8rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
-.sblogo-t{font-family:var(--fd);font-size:1.3rem;font-weight:300}
-.sblogo-t em{color:var(--gold);font-style:italic}
-.sbrole{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:.2rem}
-.sbsec{padding:0 1rem;margin-bottom:1.5rem}
-.sbsec-l{font-size:.54rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);padding:0 .5rem;margin-bottom:.5rem}
-.sbnav{list-style:none}
-.sbnav li a{display:flex;align-items:center;gap:.7rem;padding:.6rem .75rem;color:var(--muted);text-decoration:none;font-size:.73rem;border-radius:3px;transition:var(--tr)}
-.sbnav li a:hover{color:var(--text);background:var(--bg3)}
-.sbnav li a.active{color:var(--gold);background:var(--gold-m);border-left:2px solid var(--gold)}
-.sbbot{margin-top:auto;padding:1.5rem 1rem 0;border-top:1px solid var(--border)}
-.logoutbtn{width:100%;display:flex;align-items:center;gap:.7rem;padding:.6rem .75rem;color:var(--muted);font-size:.73rem;border-radius:3px;transition:var(--tr);text-align:left;cursor:pointer}
-.logoutbtn:hover{color:var(--err-c);background:rgba(138,58,58,.1)}
-.dmain{margin-left:230px;padding:2rem 2.5rem;min-height:100vh}
-.dtopbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
-.dtitle{font-family:var(--fd);font-size:1.8rem;font-weight:300}
-.ddate{font-size:.7rem;color:var(--muted)}
-.panel{display:none}.panel.active{display:block}
-.kgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
-.kgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
-.kcard{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;position:relative;transition:var(--tr)}
-.kcard:hover{border-color:var(--gold-b)}
-.kcard::after{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--gold)}
-.klbl{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:.7rem}
-.kval{font-family:var(--fd);font-size:1.9rem;font-weight:400;line-height:1;margin-bottom:.4rem}
-.kval.g{color:var(--gold)}
-.ksub{font-size:.65rem;color:var(--muted)}
-.cgrid{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem}
-.ccard{background:var(--bg2);border:1px solid var(--border);padding:1.5rem}
-.ctitle{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.2rem}
-.bar-chart{width:100%;height:160px;display:flex;align-items:flex-end;gap:6px}
-.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px;height:100%;justify-content:flex-end}
-.bar-rect{width:100%;background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.4);border-radius:2px 2px 0 0;min-height:2px}
-.bar-rect:hover{background:rgba(201,168,76,.4)}
-.bar-lbl{font-size:.52rem;color:var(--dim);text-align:center;white-space:nowrap;overflow:hidden;max-width:100%}
-.bar-val{font-size:.52rem;color:var(--muted);text-align:center}
-.donut-wrap{display:flex;align-items:center;gap:1.5rem}
-.donut-legend{display:flex;flex-direction:column;gap:.5rem;flex:1}
-.donut-item{display:flex;align-items:center;gap:.5rem;font-size:.65rem;color:var(--muted)}
-.donut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.tcard{background:var(--bg2);border:1px solid var(--border);overflow:hidden;margin-bottom:1.5rem}
-.thead2{padding:1.1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.ttitle{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.rbtn{padding:.3rem .75rem;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:2px;transition:var(--tr);cursor:pointer;font-family:var(--fb)}
-.rbtn:hover{border-color:var(--gold-b);color:var(--gold)}
-.dtable{width:100%;border-collapse:collapse}
-.dtable th{padding:.7rem 1.5rem;text-align:left;font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--border);font-weight:500}
-.dtable td{padding:.9rem 1.5rem;font-size:.76rem;color:var(--muted);border-bottom:1px solid var(--border);vertical-align:middle}
-.dtable tr:last-child td{border-bottom:none}
-.dtable tr:hover td{background:var(--bg3);color:var(--text)}
-.badge{display:inline-block;padding:.22rem .55rem;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;border-radius:2px}
-.bc{background:var(--suc-bg);color:var(--suc-c);border:1px solid var(--suc-b)}
-.bx{background:var(--err-bg);color:var(--err-c);border:1px solid var(--err-b)}
-.bk{background:var(--gold-m);color:var(--gold);border:1px solid var(--gold-b)}
-.abtn{padding:.28rem .6rem;font-size:.58rem;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:2px;cursor:pointer;transition:var(--tr);margin-right:.25rem;font-family:var(--fb)}
-.abtn:hover{border-color:var(--gold-b);color:var(--gold)}
-.abtn.cx:hover{border-color:var(--err-b);color:var(--err-c)}
-.empty{padding:2.5rem;text-align:center;color:var(--dim);font-size:.75rem}
-.lrow{padding:2.5rem;text-align:center;color:var(--dim);font-size:.73rem}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Sallon Bella</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   Helvetica, Arial, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    /* ── Login overlay ── */
+    #login-overlay {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    #login-overlay.hidden { display: none; }
+
+    .login-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 40px 36px;
+      width: 100%; max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .login-card h1 {
+      font-size: 26px; font-weight: 700;
+      color: #1a1a2e; margin-bottom: 6px;
+    }
+    .login-card p { color: #666; font-size: 14px; margin-bottom: 28px; }
+
+    .login-card label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: #333; margin-bottom: 6px;
+    }
+    .login-card input {
+      width: 100%; padding: 11px 14px; border-radius: 8px;
+      border: 1.5px solid #ddd; font-size: 15px;
+      color: #1a1a2e; background: #fafafa;
+      margin-bottom: 18px; outline: none;
+      transition: border-color .2s;
+    }
+    .login-card input:focus { border-color: #e91e8c; }
+
+    #login-btn {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, #e91e8c, #c2185b);
+      color: #fff; border: none; border-radius: 8px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: opacity .2s;
+    }
+    #login-btn:hover { opacity: .9; }
+    #login-error {
+      color: #e53935; font-size: 13px;
+      margin-top: 12px; text-align: center;
+    }
+
+    /* ── App shell ── */
+    #app { display: none; flex-direction: column; min-height: 100vh; }
+    #app.visible { display: flex; }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #fff; padding: 0 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px; box-shadow: 0 2px 12px rgba(0,0,0,.3);
+      position: sticky; top: 0; z-index: 100;
+    }
+    header h1 { font-size: 20px; font-weight: 700; letter-spacing: .5px; }
+    header h1 span { color: #e91e8c; }
+
+    #logout-btn {
+      background: rgba(255,255,255,.12); color: #fff;
+      border: 1px solid rgba(255,255,255,.25); border-radius: 8px;
+      padding: 8px 18px; font-size: 14px; cursor: pointer;
+      transition: background .2s;
+    }
+    #logout-btn:hover { background: rgba(255,255,255,.22); }
+
+    /* ── Nav tabs ── */
+    nav {
+      background: #ffffff;
+      border-bottom: 2px solid #eee;
+      display: flex; gap: 0; padding: 0 28px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    nav button {
+      background: none; border: none; cursor: pointer;
+      padding: 16px 22px; font-size: 14px; font-weight: 600;
+      color: #888; border-bottom: 3px solid transparent;
+      margin-bottom: -2px; transition: color .2s, border-color .2s;
+    }
+    nav button:hover { color: #e91e8c; }
+    nav button.active { color: #e91e8c; border-bottom-color: #e91e8c; }
+
+    /* ── Main content ── */
+    main { flex: 1; padding: 28px; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+    /* ── Sections ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── KPI cards ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px; margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: #fff; border-radius: 14px;
+      padding: 24px 22px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07);
+      border-left: 5px solid #e91e8c;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+    .kpi-card .kpi-label {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .8px; color: #888; margin-bottom: 10px;
+    }
+    .kpi-card .kpi-value {
+      font-size: 32px; font-weight: 800; color: #1a1a2e; line-height: 1;
+    }
+    .kpi-card .kpi-sub {
+      font-size: 12px; color: #aaa; margin-top: 6px;
+    }
+
+    /* ── Accent colors for KPI cards ── */
+    .kpi-card.pink  { border-left-color: #e91e8c; }
+    .kpi-card.blue  { border-left-color: #2196f3; }
+    .kpi-card.green { border-left-color: #4caf50; }
+    .kpi-card.orange{ border-left-color: #ff9800; }
+    .kpi-card.purple{ border-left-color: #9c27b0; }
+
+    /* ── Section title ── */
+    .section-title {
+      font-size: 18px; font-weight: 700; color: #1a1a2e;
+      margin-bottom: 18px; padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      align-items: center; margin-bottom: 18px;
+    }
+    .toolbar input, .toolbar select {
+      padding: 9px 14px; border-radius: 8px;
+      border: 1.5px solid #ddd; font-size: 14px;
+      color: #1a1a2e; background: #fff; outline: none;
+      transition: border-color .2s;
+    }
+    .toolbar input:focus, .toolbar select:focus { border-color: #e91e8c; }
+    .toolbar input[type="text"] { flex: 1; min-width: 200px; }
+
+    .btn {
+      padding: 9px 18px; border-radius: 8px;
+      border: none; cursor: pointer; font-size: 14px;
+      font-weight: 600; transition: opacity .2s, transform .15s;
+    }
+    .btn:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-primary { background: #e91e8c; color: #fff; }
+    .btn-secondary { background: #f0f0f0; color: #333; }
+    .btn-danger { background: #e53935; color: #fff; }
+    .btn-success { background: #4caf50; color: #fff; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+    /* ── Table ── */
+    .table-wrap {
+      background: #fff; border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07); overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #1a1a2e; }
+    thead th {
+      color: #fff; font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .7px;
+      padding: 14px 16px; text-align: left;
+    }
+    tbody tr { border-bottom: 1px solid #f0f0f0; transition: background .15s; }
+    tbody tr:hover { background: #fdf0f7; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td { padding: 13px 16px; font-size: 14px; color: #333; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block; padding: 3px 10px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .badge-pendiente  { background: #fff3e0; color: #e65100; }
+    .badge-confirmado { background: #e8f5e9; color: #2e7d32; }
+    .badge-cancelado  { background: #ffebee; color: #c62828; }
+    .badge-completado { background: #e3f2fd; color: #1565c0; }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 18px;
+      background: #fff; border-top: 1px solid #f0f0f0;
+    }
+    .pagination button {
+      width: 34px; height: 34px; border-radius: 8px;
+      border: 1.5px solid #ddd; background: #fff;
+      font-size: 14px; cursor: pointer; color: #333;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .pagination button.active,
+    .pagination button:hover { background: #e91e8c; color: #fff; border-color: #e91e8c; }
+    .pagination span { font-size: 13px; color: #888; }
+
+    /* ── Modal ── */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(3px);
+      z-index: 500; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-backdrop.hidden { display: none; }
+    .modal {
+      background: #fff; border-radius: 16px;
+      padding: 32px; width: 100%; max-width: 520px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.35);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal h2 { font-size: 20px; color: #1a1a2e; margin-bottom: 22px; }
+    .form-row { margin-bottom: 16px; }
+    .form-row label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: #444; margin-bottom: 6px;
+    }
+    .form-row input, .form-row select, .form-row textarea {
+      width: 100%; padding: 10px 13px;
+      border: 1.5px solid #ddd; border-radius: 8px;
+      font-size: 14px; color: #1a1a2e; background: #fafafa;
+      outline: none; transition: border-color .2s;
+      font-family: inherit;
+    }
+    .form-row input:focus,
+    .form-row select:focus,
+    .form-row textarea:focus { border-color: #e91e8c; }
+    .form-row textarea { resize: vertical; min-height: 80px; }
+    .modal-actions {
+      display: flex; gap: 12px; justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    /* ── Loading spinner ── */
+    .spinner {
+      text-align: center; padding: 48px;
+      font-size: 15px; color: #888;
+    }
+    .spinner::before {
+      content: '';
+      display: inline-block; width: 32px; height: 32px;
+      border: 3px solid #eee; border-top-color: #e91e8c;
+      border-radius: 50%; animation: spin .7s linear infinite;
+      margin-bottom: 12px; display: block; margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: #1a1a2e; color: #fff;
+      padding: 14px 22px; border-radius: 10px;
+      font-size: 14px; font-weight: 500;
+      box-shadow: 0 8px 28px rgba(0,0,0,.3);
+      transform: translateY(80px); opacity: 0;
+      transition: transform .3s, opacity .3s;
+      z-index: 9000; max-width: 320px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-left: 4px solid #4caf50; }
+    #toast.error   { border-left: 4px solid #e53935; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      main { padding: 16px; }
+      header { padding: 0 16px; }
+      nav { padding: 0 8px; overflow-x: auto; }
+      nav button { padding: 14px 14px; font-size: 13px; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<div id="login-screen">
-  <div class="lcard">
-    <div class="llogo">Sallon<em>Bella</em></div>
-    <div class="lsub">Panel Administrativo</div>
-    <div class="ldiv"></div>
-    <div class="fgrp"><label>Email</label><input type="email" id="lemail" placeholder="tu@email.com" autocomplete="email"></div>
-    <div class="fgrp"><label>Contrasena</label><input type="password" id="lpass" placeholder="••••••••" autocomplete="current-password"></div>
-    <button class="lbtn" id="lbtn" onclick="doLogin()">Ingresar</button>
-    <div class="lerr" id="lerr"></div>
+<!-- LOGIN -->
+<div id="login-overlay">
+  <div class="login-card">
+    <h1>💄 Sallon Bella</h1>
+    <p>Panel de administración</p>
+    <label>Email</label>
+    <input type="email" id="email" value="edgardochapot@hotmail.com" autocomplete="username" />
+    <label>Contraseña</label>
+    <input type="password" id="password" value="35132106" autocomplete="current-password" />
+    <button id="login-btn">Ingresar</button>
+    <div id="login-error"></div>
   </div>
 </div>
 
-<div id="dash-screen">
-  <div class="dlayout">
-    <aside class="sidebar">
-      <div class="sblogo"><div class="sblogo-t">Sallon<em>Bella</em></div><div class="sbrole">Panel Administrativo</div></div>
-      <div class="sbsec">
-        <div class="sbsec-l">Principal</div>
-        <ul class="sbnav">
-          <li><a href="#" class="active" data-panel="pr" data-title="Resumen del dia">Resumen</a></li>
-          <li><a href="#" data-panel="pa" data-title="Reservas activas">Reservas activas</a></li>
-          <li><a href="#" data-panel="pc" data-title="Cancelaciones">Cancelaciones</a></li>
-        </ul>
-      </div>
-      <div class="sbsec">
-        <div class="sbsec-l">Metricas</div>
-        <ul class="sbnav">
-          <li><a href="#" data-panel="pi" data-title="Ingresos">Ingresos</a></li>
-          <li><a href="#" data-panel="pp" data-title="Proyeccion">Proyeccion</a></li>
-        </ul>
-      </div>
-      <div class="sbbot"><button class="logoutbtn" onclick="doLogout()">Cerrar sesion</button></div>
-    </aside>
-    <main class="dmain">
-      <div class="dtopbar">
-        <h1 class="dtitle" id="ptitle">Resumen del dia</h1>
-        <span class="ddate" id="ddate"></span>
-      </div>
+<!-- APP -->
+<div id="app">
+  <header>
+    <h1>💄 Sallon <span>Bella</span> — Admin</h1>
+    <button id="logout-btn">Cerrar sesión</button>
+  </header>
 
-      <div class="panel active" id="pr">
-        <div class="kgrid">
-          <div class="kcard"><div class="klbl">Citas hoy</div><div class="kval" id="khoy">—</div><div class="ksub">turnos confirmados</div></div>
-          <div class="kcard"><div class="klbl">Ingresos esperados hoy</div><div class="kval g" id="kinghoy">—</div><div class="ksub">en citas de hoy</div></div>
-          <div class="kcard"><div class="klbl">Reservas activas</div><div class="kval" id="kact">—</div><div class="ksub">total confirmadas</div></div>
-          <div class="kcard"><div class="klbl">Ingresos del mes</div><div class="kval g" id="kmes">—</div><div class="ksub">citas completadas</div></div>
-        </div>
-        <div class="cgrid">
-          <div class="ccard"><div class="ctitle">Ingresos ultimos 7 dias</div><div class="bar-chart" id="cd"></div></div>
-          <div class="ccard"><div class="ctitle">Servicios por demanda</div><div id="cs"></div></div>
-        </div>
-      </div>
+  <nav>
+    <button class="active" data-tab="dashboard">📊 Dashboard</button>
+    <button data-tab="reservas">📅 Reservas</button>
+    <button data-tab="clientes">👩 Clientes</button>
+    <button data-tab="servicios">✂️ Servicios</button>
+    <button data-tab="profesionales">💅 Profesionales</button>
+  </nav>
 
-      <div class="panel" id="pa">
-        <div class="tcard">
-          <div class="thead2"><span class="ttitle">Reservas confirmadas</span><button class="rbtn" onclick="loadActivas()">Actualizar</button></div>
-          <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha y hora</th><th>Telefono</th><th>Canal</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tba"><tr><td colspan="7" class="lrow">Cargando...</td></tr></tbody></table></div>
-        </div>
-      </div>
+  <main>
 
-      <div class="panel" id="pc">
-        <div class="tcard">
-          <div class="thead2"><span class="ttitle">Historial de cancelaciones</span><button class="rbtn" onclick="loadCancel()">Actualizar</button></div>
-          <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha y hora</th><th>Telefono</th><th>Estado</th></tr></thead><tbody id="tbc"><tr><td colspan="5" class="lrow">Cargando...</td></tr></tbody></table></div>
-        </div>
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="section active">
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="spinner">Cargando métricas…</div>
       </div>
+      <div class="section-title">Reservas recientes</div>
+      <div class="table-wrap" id="recent-table">
+        <div class="spinner">Cargando…</div>
+      </div>
+    </div>
 
-      <div class="panel" id="pi">
-        <div class="ccard" style="margin-bottom:1rem">
-          <div class="ctitle">Ingresos mensuales ultimos 6 meses</div>
-          <svg id="cm" width="100%" height="130" viewBox="0 0 600 130" preserveAspectRatio="none" style="overflow:visible"></svg>
-        </div>
-        <div class="cgrid">
-          <div class="ccard"><div class="ctitle">Ultimos 7 dias</div><div class="bar-chart" id="cd2"></div></div>
-          <div class="ccard"><div class="ctitle">Por servicio</div><div id="cs2"></div></div>
-        </div>
+    <!-- RESERVAS -->
+    <div id="tab-reservas" class="section">
+      <div class="section-title">Gestión de Reservas</div>
+      <div class="toolbar">
+        <input type="text" id="res-search" placeholder="Buscar por cliente o servicio…" />
+        <select id="res-filter-estado">
+          <option value="">Todos los estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="confirmado">Confirmado</option>
+          <option value="completado">Completado</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+        <input type="date" id="res-filter-fecha" />
+        <button class="btn btn-primary" id="btn-nueva-reserva">+ Nueva reserva</button>
       </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Cliente</th><th>Servicio</th>
+              <th>Profesional</th><th>Fecha</th><th>Hora</th>
+              <th>Estado</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tba"></tbody>
+        </table>
+        <div class="pagination" id="res-pagination"></div>
+      </div>
+    </div>
 
-      <div class="panel" id="pp">
-        <div class="kgrid3">
-          <div class="kcard"><div class="klbl">Citas futuras confirmadas</div><div class="kval" id="pcitas">—</div><div class="ksub">proximos 30 dias</div></div>
-          <div class="kcard"><div class="klbl">Ingresos proyectados</div><div class="kval g" id="ping">—</div><div class="ksub">por citas ya agendadas</div></div>
-          <div class="kcard"><div class="klbl">Promedio mensual historico</div><div class="kval g" id="pprom">—</div><div class="ksub">basado en historial</div></div>
-        </div>
-        <div class="tcard">
-          <div class="thead2"><span class="ttitle">Proximas citas confirmadas</span></div>
-          <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>Fecha y hora</th><th>Servicio</th><th>Cliente</th><th>Ingreso esperado</th></tr></thead><tbody id="tbp"><tr><td colspan="4" class="lrow">Cargando...</td></tr></tbody></table></div>
-        </div>
+    <!-- CLIENTES -->
+    <div id="tab-clientes" class="section">
+      <div class="section-title">Clientes</div>
+      <div class="toolbar">
+        <input type="text" id="cli-search" placeholder="Buscar cliente…" />
+        <button class="btn btn-primary" id="btn-nuevo-cliente">+ Nuevo cliente</button>
       </div>
-    </main>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th><th>Email</th><th>Teléfono</th>
+              <th>Reservas</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbc"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SERVICIOS -->
+    <div id="tab-servicios" class="section">
+      <div class="section-title">Servicios</div>
+      <div class="toolbar">
+        <button class="btn btn-primary" id="btn-nuevo-servicio">+ Nuevo servicio</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Servicio</th><th>Categoría</th><th>Duración</th>
+              <th>Precio</th><th>Activo</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbs"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROFESIONALES -->
+    <div id="tab-profesionales" class="section">
+      <div class="section-title">Profesionales</div>
+      <div class="toolbar">
+        <button class="btn btn-primary" id="btn-nuevo-prof">+ Nueva profesional</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th><th>Especialidad</th><th>Email</th>
+              <th>Teléfono</th><th>Activo</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbp"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL RESERVA -->
+<div id="modal-reserva" class="modal-backdrop hidden">
+  <div class="modal">
+    <h2 id="modal-reserva-title">Nueva Reserva</h2>
+    <input type="hidden" id="res-id" />
+    <div class="form-row">
+      <label>Cliente</label>
+      <select id="res-cliente"></select>
+    </div>
+    <div class="form-row">
+      <label>Servicio</label>
+      <select id="res-servicio"></select>
+    </div>
+    <div class="form-row">
+      <label>Profesional</label>
+      <select id="res-profesional"></select>
+    </div>
+    <div class="form-row">
+      <label>Fecha</label>
+      <input type="date" id="res-fecha" />
+    </div>
+    <div class="form-row">
+      <label>Hora</label>
+      <input type="time" id="res-hora" />
+    </div>
+    <div class="form-row">
+      <label>Estado</label>
+      <select id="res-estado">
+        <option value="pendiente">Pendiente</option>
+        <option value="confirmado">Confirmado</option>
+        <option value="completado">Completado</option>
+        <option value="cancelado">Cancelado</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Notas</label>
+      <textarea id="res-notas" rows="3"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="modal-reserva-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-reserva-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLIENTE -->
+<div id="modal-cliente" class="modal-backdrop hidden">
+  <div class="modal">
+    <h2 id="modal-cliente-title">Nuevo Cliente</h2>
+    <input type="hidden" id="cli-id" />
+    <div class="form-row">
+      <label>Nombre</label>
+      <input type="text" id="cli-nombre" />
+    </div>
+    <div class="form-row">
+      <label>Apellido</label>
+      <input type="text" id="cli-apellido" />
+    </div>
+    <div class="form-row">
+      <label>Email</label>
+      <input type="email" id="cli-email" />
+    </div>
+    <div class="form-row">
+      <label>Teléfono</label>
+      <input type="tel" id="cli-telefono" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="modal-cliente-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-cliente-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SERVICIO -->
+<div id="modal-servicio" class="modal-backdrop hidden">
+  <div class="modal">
+    <h2 id="modal-servicio-title">Nuevo Servicio</h2>
+    <input type="hidden" id="svc-id" />
+    <div class="form-row">
+      <label>Nombre</label>
+      <input type="text" id="svc-nombre" />
+    </div>
+    <div class="form-row">
+      <label>Categoría</label>
+      <input type="text" id="svc-categoria" />
+    </div>
+    <div class="form-row">
+      <label>Duración (minutos)</label>
+      <input type="number" id="svc-duracion" min="5" step="5" />
+    </div>
+    <div class="form-row">
+      <label>Precio ($)</label>
+      <input type="number" id="svc-precio" min="0" step="0.01" />
+    </div>
+    <div class="form-row">
+      <label>Descripción</label>
+      <textarea id="svc-descripcion"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="modal-servicio-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-servicio-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PROFESIONAL -->
+<div id="modal-prof" class="modal-backdrop hidden">
+  <div class="modal">
+    <h2 id="modal-prof-title">Nueva Profesional</h2>
+    <input type="hidden" id="prof-id" />
+    <div class="form-row">
+      <label>Nombre</label>
+      <input type="text" id="prof-nombre" />
+    </div>
+    <div class="form-row">
+      <label>Apellido</label>
+      <input type="text" id="prof-apellido" />
+    </div>
+    <div class="form-row">
+      <label>Especialidad</label>
+      <input type="text" id="prof-especialidad" />
+    </div>
+    <div class="form-row">
+      <label>Email</label>
+      <input type="email" id="prof-email" />
+    </div>
+    <div class="form-row">
+      <label>Teléfono</label>
+      <input type="tel" id="prof-telefono" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="modal-prof-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-prof-save">Guardar</button>
+    </div>
   </div>
 </div>
 
 <script>
-var SB_URL='https://glczaecmkniqdmqkvfxc.supabase.co';
-var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsY3phZWNta25pcWRtcWt2ZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1OTEyNDcsImV4cCI6MjA5MzE2NzI0N30.2i8E4KX_ocyca-yRT_4fG6y85dpH3J-0f6gOsmn-O2c';
-var TZ='America/Argentina/Buenos_Aires';
-var TOKEN=null;
+/* ─────────────────────────────
+   SUPABASE
+───────────────────────────── */
+const SUPA_URL = 'https://glczaecmkniqdmqkvfxc.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsY3phZWNta25pcWRtcWt2ZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1NzA4MDQsImV4cCI6MjA2MjE0NjgwNH0.XdLRHLuFSFbCeylSZUr36Gi7Q0v33m76XGqpUUZVz9w';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-function fmt$(n){if(!n||n===0)return '$0';if(n>=1000)return '$'+(n/1000).toFixed(1)+'k';return '$'+Math.round(n);}
-function fmtFull(n){return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS'}).format(n||0);}
-function fmtD(iso){if(!iso)return '--';return new Date(iso).toLocaleString('es-AR',{timeZone:TZ,day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
-function today(){return new Date().toLocaleDateString('en-CA',{timeZone:TZ});}
-function hdrs(){return{'apikey':SB_KEY,'Authorization':'Bearer '+(TOKEN||SB_KEY),'Content-Type':'application/json'};}
+/* ─────────────────────────────
+   UTILS
+───────────────────────────── */
+const $ = id => document.getElementById(id);
+const toast = (msg, type = 'success') => {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  setTimeout(() => { t.className = ''; }, 3200);
+};
+const fmt = {
+  date: d => d ? new Date(d + 'T00:00:00').toLocaleDateString('es-AR') : '—',
+  money: n => n != null ? `$${Number(n).toLocaleString('es-AR', {minimumFractionDigits:0})}` : '—',
+  badge: s => {
+    const map = { pendiente:'badge-pendiente', confirmado:'badge-confirmado',
+                  cancelado:'badge-cancelado', completado:'badge-completado' };
+    return `<span class="badge ${map[s]||''}">${s||'—'}</span>`;
+  }
+};
 
-async function sbGet(path){
-  var r=await fetch(SB_URL+'/rest/v1/'+path,{headers:hdrs()});
-  if(!r.ok)throw new Error(await r.text());
-  return r.json();
-}
-async function sbPatch(path,body){
-  var r=await fetch(SB_URL+'/rest/v1/'+path,{method:'PATCH',headers:Object.assign({},hdrs(),{'Prefer':'return=minimal'}),body:JSON.stringify(body)});
-  if(!r.ok)throw new Error(await r.text());
-}
-async function sbCount(path){
-  var r=await fetch(SB_URL+'/rest/v1/'+path,{method:'HEAD',headers:Object.assign({},hdrs(),{'Prefer':'count=exact'})});
-  var cr=r.headers.get('content-range');
-  return cr?parseInt(cr.split('/')[1])||0:0;
-}
+/* ─────────────────────────────
+   LOGIN
+───────────────────────────── */
+$('login-btn').onclick = async () => {
+  const email = $('email').value.trim();
+  const pass  = $('password').value;
+  $('login-error').textContent = '';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { $('login-error').textContent = error.message; }
+};
 
-async function doLogin(){
-  var email=document.getElementById('lemail').value.trim();
-  var pass=document.getElementById('lpass').value;
-  var btn=document.getElementById('lbtn');
-  var err=document.getElementById('lerr');
-  err.style.display='none';
-  if(!email||!pass){err.textContent='Completa todos los campos.';err.style.display='block';return;}
-  btn.disabled=true;btn.textContent='Verificando...';
-  try{
-    var r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{
-      method:'POST',
-      headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({email:email,password:pass})
-    });
-    var d=await r.json();
-    if(!r.ok)throw new Error(d.error_description||d.msg||'Credenciales incorrectas');
-    TOKEN=d.access_token;
-    localStorage.setItem('sb_token',TOKEN);
-    showDash();
-  }catch(e){err.textContent=e.message||'Error al iniciar sesion.';err.style.display='block';}
-  btn.disabled=false;btn.textContent='Ingresar';
-}
+$('logout-btn').onclick = async () => {
+  await sb.auth.signOut();
+};
 
-function doLogout(){
-  if(TOKEN)fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+TOKEN}}).catch(function(){});
-  TOKEN=null;localStorage.removeItem('sb_token');
-  document.getElementById('dash-screen').style.display='none';
-  document.getElementById('login-screen').style.display='flex';
-}
-
-document.getElementById('lpass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
-document.getElementById('lemail').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
-
-document.querySelectorAll('.sbnav a').forEach(function(a){
-  a.addEventListener('click',function(e){
-    e.preventDefault();
-    document.querySelectorAll('.sbnav a').forEach(function(x){x.classList.remove('active');});
-    a.classList.add('active');
-    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
-    var el=document.getElementById(a.dataset.panel);
-    if(el)el.classList.add('active');
-    document.getElementById('ptitle').textContent=a.dataset.title||'Dashboard';
-  });
+sb.auth.onAuthStateChange((event, session) => {
+  if (session) {
+    $('login-overlay').classList.add('hidden');
+    $('app').classList.add('visible');
+    initApp();
+  } else {
+    $('login-overlay').classList.remove('hidden');
+    $('app').classList.remove('visible');
+  }
 });
 
-function showDash(){
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('dash-screen').style.display='block';
-  document.getElementById('ddate').textContent=new Date().toLocaleDateString('es-AR',{timeZone:TZ,weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  loadAll();
+/* ─────────────────────────────
+   TABS
+───────────────────────────── */
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-' + btn.dataset.tab).classList.add('active');
+  };
+});
+
+/* ─────────────────────────────
+   STATE
+───────────────────────────── */
+let allReservas = [], allClientes = [], allServicios = [], allProfesionales = [];
+let resPage = 1; const resPerPage = 15;
+
+/* ─────────────────────────────
+   INIT
+───────────────────────────── */
+async function initApp() {
+  await Promise.all([
+    loadDashboard(),
+    loadReservas(),
+    loadClientes(),
+    loadServicios(),
+    loadProfesionales()
+  ]);
 }
 
-function loadAll(){loadKPIs();loadBarCharts();loadDonuts();loadActivas();loadCancel();loadProyeccion();loadLineChart();}
+/* ─────────────────────────────
+   DASHBOARD
+───────────────────────────── */
+async function loadDashboard() {
+  // Try vista_metricas first
+  let metricas = null;
+  const { data: vm } = await sb.from('vista_metricas').select('*').maybeSingle();
+  if (vm) metricas = vm;
 
-async function loadKPIs(){
-  try{
-    var hoy=today();
-    var r1=await sbGet('vista_metricas?select=precio_servicio&fecha=eq.'+hoy+'&estado=neq.cancelado');
-    var ch=r1||[];
-    var total=await sbCount('citas?estado=eq.confirmado');
-    var d1=new Date();d1.setDate(1);d1.setHours(0,0,0,0);
-    var r3=await sbGet('vista_metricas?select=precio_servicio&estado=eq.completado&fecha_hora_local=gte.'+d1.toISOString());
-    var mes=r3||[];
-    document.getElementById('khoy').textContent=ch.length;
-    document.getElementById('kinghoy').textContent=fmtFull(ch.reduce(function(s,c){return s+(c.precio_servicio||0);},0));
-    document.getElementById('kact').textContent=total;
-    document.getElementById('kmes').textContent=fmtFull(mes.reduce(function(s,c){return s+(c.precio_servicio||0);},0));
-  }catch(e){console.warn('KPIs:',e.message);}
+  // Fallback: compute from tables
+  const { count: totalRes } = await sb.from('reservas').select('*', { count:'exact', head:true });
+  const { count: pendCount } = await sb.from('reservas').select('*', { count:'exact', head:true }).eq('estado','pendiente');
+  const { count: cliCount } = await sb.from('clientes').select('*', { count:'exact', head:true });
+
+  const kpis = [
+    { label:'Total Reservas', value: metricas?.total_reservas ?? totalRes ?? 0, sub:'acumuladas', cls:'pink' },
+    { label:'Pendientes', value: metricas?.reservas_pendientes ?? pendCount ?? 0, sub:'sin confirmar', cls:'orange' },
+    { label:'Clientes', value: metricas?.total_clientes ?? cliCount ?? 0, sub:'registrados', cls:'blue' },
+    { label:'Ingresos del mes', value: fmt.money(metricas?.ingresos_mes ?? null), sub:'mes actual', cls:'green' },
+    { label:'Reservas hoy', value: metricas?.reservas_hoy ?? '—', sub: new Date().toLocaleDateString('es-AR'), cls:'purple' },
+  ];
+
+  $('kpi-grid').innerHTML = kpis.map(k => `
+    <div class="kpi-card ${k.cls}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+
+  // Recent reservas
+  const { data: recent } = await sb
+    .from('reservas')
+    .select('*, clientes(nombre,apellido), servicios(nombre), profesionales(nombre)')
+    .order('created_at', { ascending: false })
+    .limit(8);
+
+  if (!recent?.length) {
+    $('recent-table').innerHTML = '<div class="spinner">Sin datos</div>';
+    return;
+  }
+  $('recent-table').innerHTML = `
+    <table><thead><tr>
+      <th>Cliente</th><th>Servicio</th><th>Fecha</th><th>Estado</th>
+    </tr></thead><tbody>
+    ${recent.map(r => `<tr>
+      <td>${r.clientes?.nombre||''} ${r.clientes?.apellido||''}</td>
+      <td>${r.servicios?.nombre||r.servicio_nombre||'—'}</td>
+      <td>${fmt.date(r.fecha)}</td>
+      <td>${fmt.badge(r.estado)}</td>
+    </tr>`).join('')}
+    </tbody></table>`;
 }
 
-function renderBar(id,labels,values){
-  var el=document.getElementById(id);if(!el)return;
-  var max=Math.max.apply(null,values)||1;
-  el.innerHTML=labels.map(function(l,i){
-    var pct=Math.max(Math.round((values[i]/max)*100),2);
-    return '<div class="bar-col">'+
-      '<div class="bar-val">'+(values[i]>0?fmt$(values[i]):'')+'</div>'+
-      '<div class="bar-rect" style="height:'+pct+'%"></div>'+
-      '<div class="bar-lbl">'+l+'</div></div>';
-  }).join('');
+/* ─────────────────────────────
+   RESERVAS
+───────────────────────────── */
+async function loadReservas() {
+  const { data, error } = await sb
+    .from('reservas')
+    .select('*, clientes(nombre,apellido), servicios(nombre), profesionales(nombre)')
+    .order('fecha', { ascending: false });
+  if (error) { toast(error.message, 'error'); return; }
+  allReservas = data || [];
+  renderReservas();
 }
 
-async function loadBarCharts(){
-  try{
-    var labels=[],values=[];
-    for(var i=6;i>=0;i--){
-      var d=new Date();d.setDate(d.getDate()-i);
-      var f=d.toLocaleDateString('en-CA',{timeZone:TZ});
-      labels.push(d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric'}));
-      var r=await sbGet('vista_metricas?select=precio_servicio&fecha=eq.'+f+'&estado=eq.completado');
-      values.push((r||[]).reduce(function(s,c){return s+(c.precio_servicio||0);},0));
-    }
-    renderBar('cd',labels,values);
-    renderBar('cd2',labels,values);
-  }catch(e){console.warn('Bar:',e.message);}
-}
-
-var DC=['rgba(201,168,76,.85)','rgba(201,168,76,.55)','rgba(201,168,76,.3)','rgba(201,168,76,.15)'];
-function renderDonut(id,labels,values){
-  var el=document.getElementById(id);if(!el)return;
-  var total=values.reduce(function(s,v){return s+v;},0)||1;
-  var C=2*Math.PI*45,off=0,paths='';
-  values.forEach(function(v,i){
-    var dash=(v/total)*C,gap=C-dash;
-    paths+='<circle cx="60" cy="60" r="45" fill="none" stroke="'+DC[i%DC.length]+'" stroke-width="18" stroke-dasharray="'+dash.toFixed(1)+' '+gap.toFixed(1)+'" stroke-dashoffset="'+(-(off)).toFixed(1)+'" transform="rotate(-90 60 60)"/>';
-    off+=dash;
+function filterReservas() {
+  const q = $('res-search').value.toLowerCase();
+  const est = $('res-filter-estado').value;
+  const fecha = $('res-filter-fecha').value;
+  return allReservas.filter(r => {
+    const nombre = `${r.clientes?.nombre||''} ${r.clientes?.apellido||''} ${r.servicios?.nombre||''}`.toLowerCase();
+    return (!q || nombre.includes(q))
+      && (!est || r.estado === est)
+      && (!fecha || r.fecha === fecha);
   });
-  var legend=labels.map(function(l,i){return '<div class="donut-item"><div class="donut-dot" style="background:'+DC[i%DC.length]+'"></div><span>'+l+' ('+values[i]+')</span></div>';}).join('');
-  el.innerHTML='<div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0"><circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="18"/>'+paths+'</svg><div class="donut-legend">'+legend+'</div></div>';
 }
 
-async function loadDonuts(){
-  try{
-    var rs=await sbGet('vista_metricas?select=servicio&estado=neq.cancelado');
-    if(rs&&rs.length){
-      var cnt={};rs.forEach(function(c){cnt[c.servicio]=(cnt[c.servicio]||0)+1;});
-      var s=Object.entries(cnt).sort(function(a,b){return b[1]-a[1];});
-      renderDonut('cs',s.map(function(x){return x[0];}),s.map(function(x){return x[1];}));
-      renderDonut('cs2',s.map(function(x){return x[0];}),s.map(function(x){return x[1];}));
+function renderReservas() {
+  const filtered = filterReservas();
+  const total = filtered.length;
+  const pages = Math.ceil(total / resPerPage) || 1;
+  resPage = Math.min(resPage, pages);
+  const slice = filtered.slice((resPage-1)*resPerPage, resPage*resPerPage);
+
+  $('tba').innerHTML = slice.length ? slice.map(r => `
+    <tr>
+      <td>${r.id?.toString().slice(-6) || '—'}</td>
+      <td>${r.clientes?.nombre||''} ${r.clientes?.apellido||''}</td>
+      <td>${r.servicios?.nombre || r.servicio_nombre || '—'}</td>
+      <td>${r.profesionales?.nombre || r.profesional_nombre || '—'}</td>
+      <td>${fmt.date(r.fecha)}</td>
+      <td>${r.hora_inicio || r.hora || '—'}</td>
+      <td>${fmt.badge(r.estado)}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editReserva('${r.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteReserva('${r.id}')">🗑️</button>
+      </td>
+    </tr>`).join('')
+    : '<tr><td colspan="8" style="text-align:center;color:#aaa;padding:32px">Sin resultados</td></tr>';
+
+  // Pagination
+  let pag = '';
+  if (pages > 1) {
+    pag += `<span>Página ${resPage} de ${pages} (${total} registros)</span>`;
+    for (let i = 1; i <= pages; i++) {
+      pag += `<button class="${i===resPage?'active':''}" onclick="goResPage(${i})">${i}</button>`;
     }
-  }catch(e){console.warn('Donut:',e.message);}
+  }
+  $('res-pagination').innerHTML = pag;
 }
 
-async function loadLineChart(){
-  try{
-    var MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    var labels=[],values=[];
-    for(var j=5;j>=0;j--){
-      var dm=new Date();dm.setMonth(dm.getMonth()-j);
-      var m=dm.getMonth()+1,y=dm.getFullYear();
-      labels.push(MN[dm.getMonth()]);
-      var r=await sbGet('vista_metricas?select=precio_servicio&estado=eq.completado&fecha_hora_local=gte.'+new Date(y,m-1,1).toISOString()+'&fecha_hora_local=lt.'+new Date(y,m,1).toISOString());
-      values.push((r||[]).reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+window.goResPage = p => { resPage = p; renderReservas(); };
+
+$('res-search').oninput = () => { resPage=1; renderReservas(); };
+$('res-filter-estado').onchange = () => { resPage=1; renderReservas(); };
+$('res-filter-fecha').onchange = () => { resPage=1; renderReservas(); };
+
+/* CRUD Reservas */
+$('btn-nueva-reserva').onclick = () => openReservaModal();
+
+async function openReservaModal(id) {
+  await populateSelects();
+  $('modal-reserva-title').textContent = id ? 'Editar Reserva' : 'Nueva Reserva';
+  $('res-id').value = id || '';
+  if (id) {
+    const r = allReservas.find(x => x.id == id);
+    if (r) {
+      $('res-cliente').value    = r.cliente_id || '';
+      $('res-servicio').value   = r.servicio_id || '';
+      $('res-profesional').value= r.profesional_id || '';
+      $('res-fecha').value      = r.fecha || '';
+      $('res-hora').value       = r.hora_inicio || r.hora || '';
+      $('res-estado').value     = r.estado || 'pendiente';
+      $('res-notas').value      = r.notas || '';
     }
-    var svg=document.getElementById('cm');if(!svg)return;
-    var W=600,H=130,P=30,maxV=Math.max.apply(null,values)||1;
-    var pts=values.map(function(v,i){
-      return (P+i*(W-P*2)/(values.length-1||1)).toFixed(1)+','+(H-P-(v/maxV)*(H-P*2)).toFixed(1);
-    });
-    var area='<polygon points="'+P+','+(H-P)+' '+pts.join(' ')+' '+(W-P)+','+(H-P)+'" fill="rgba(201,168,76,.08)"/>';
-    var line='<polyline points="'+pts.join(' ')+'" fill="none" stroke="rgba(201,168,76,.8)" stroke-width="2"/>';
-    var dots=pts.map(function(pt,i){
-      var p=pt.split(',');
-      return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4" fill="#C9A84C"/>'+
-        '<text x="'+p[0]+'" y="'+(parseFloat(p[1])-8)+'" text-anchor="middle" font-size="9" fill="#888">'+fmt$(values[i])+'</text>';
-    }).join('');
-    var xl=labels.map(function(l,i){
-      var x=(P+i*(W-P*2)/(labels.length-1||1)).toFixed(1);
-      return '<text x="'+x+'" y="'+(H-6)+'" text-anchor="middle" font-size="9" fill="#555">'+l+'</text>';
-    }).join('');
-    svg.innerHTML=area+line+dots+xl;
-  }catch(e){console.warn('Line:',e.message);}
+  } else {
+    ['res-cliente','res-servicio','res-profesional','res-fecha','res-hora','res-notas']
+      .forEach(id => document.getElementById(id).value = '');
+    $('res-estado').value = 'pendiente';
+  }
+  $('modal-reserva').classList.remove('hidden');
 }
 
-async function loadActivas(){
-  var tb=document.getElementById('tba');
-  tb.innerHTML='<tr><td colspan="7" class="lrow">Cargando...</td></tr>';
-  try{
-    var r=await sbGet('vista_metricas?select=*&estado=eq.confirmado&order=fecha_hora_local.asc');
-    if(!r||!r.length){tb.innerHTML='<tr><td colspan="7" class="empty">No hay reservas activas</td></tr>';return;}
-    tb.innerHTML=r.map(function(c){
-      return '<tr><td style="color:var(--text)">'+(c.nombre_completo||'—')+'</td><td>'+(c.servicio||'—')+'</td><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+(c.telefono||'—')+'</td><td style="font-size:.65rem">'+(c.medio_reserva==='formulario'?'Web':'WhatsApp')+'</td><td><span class="badge bc">Confirmado</span></td><td>'+
-        '<button class="abtn" onclick="cambiar(\''+c.id+'\',\'completado\')">Completar</button>'+
-        '<button class="abtn cx" onclick="cambiar(\''+c.id+'\',\'cancelado\')">Cancelar</button></td></tr>';
-    }).join('');
-  }catch(e){tb.innerHTML='<tr><td colspan="7" class="empty">Error: '+e.message+'</td></tr>';}
+window.editReserva   = id => openReservaModal(id);
+window.deleteReserva = async id => {
+  if (!confirm('¿Eliminar esta reserva?')) return;
+  const { error } = await sb.from('reservas').delete().eq('id', id);
+  if (error) toast(error.message, 'error');
+  else { toast('Reserva eliminada'); await loadReservas(); await loadDashboard(); }
+};
+
+$('modal-reserva-cancel').onclick = () => $('modal-reserva').classList.add('hidden');
+$('modal-reserva-save').onclick   = async () => {
+  const id = $('res-id').value;
+  const payload = {
+    cliente_id:     $('res-cliente').value || null,
+    servicio_id:    $('res-servicio').value || null,
+    profesional_id: $('res-profesional').value || null,
+    fecha:          $('res-fecha').value || null,
+    hora_inicio:    $('res-hora').value || null,
+    estado:         $('res-estado').value,
+    notas:          $('res-notas').value || null,
+  };
+  let error;
+  if (id) ({ error } = await sb.from('reservas').update(payload).eq('id', id));
+  else    ({ error } = await sb.from('reservas').insert(payload));
+  if (error) toast(error.message, 'error');
+  else {
+    toast(id ? 'Reserva actualizada ✓' : 'Reserva creada ✓');
+    $('modal-reserva').classList.add('hidden');
+    await loadReservas(); await loadDashboard();
+  }
+};
+
+async function populateSelects() {
+  const opts = (arr, label) =>
+    arr.map(x => `<option value="${x.id}">${x[label]||x.nombre||x.id}</option>`).join('');
+
+  $('res-cliente').innerHTML    = '<option value="">— Cliente —</option>' +
+    allClientes.map(c => `<option value="${c.id}">${c.nombre} ${c.apellido||''}</option>`).join('');
+  $('res-servicio').innerHTML   = '<option value="">— Servicio —</option>' + opts(allServicios, 'nombre');
+  $('res-profesional').innerHTML= '<option value="">— Profesional —</option>' +
+    allProfesionales.map(p => `<option value="${p.id}">${p.nombre} ${p.apellido||''}</option>`).join('');
 }
 
-async function loadCancel(){
-  var tb=document.getElementById('tbc');
-  tb.innerHTML='<tr><td colspan="5" class="lrow">Cargando...</td></tr>';
-  try{
-    var r=await sbGet('vista_metricas?select=*&estado=eq.cancelado&order=fecha_hora_local.desc&limit=50');
-    if(!r||!r.length){tb.innerHTML='<tr><td colspan="5" class="empty">No hay cancelaciones</td></tr>';return;}
-    tb.innerHTML=r.map(function(c){
-      return '<tr><td style="color:var(--text)">'+(c.nombre_completo||'—')+'</td><td>'+(c.servicio||'—')+'</td><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+(c.telefono||'—')+'</td><td><span class="badge bx">Cancelado</span></td></tr>';
-    }).join('');
-  }catch(e){tb.innerHTML='<tr><td colspan="5" class="empty">Error: '+e.message+'</td></tr>';}
+/* ─────────────────────────────
+   CLIENTES
+───────────────────────────── */
+async function loadClientes() {
+  const { data, error } = await sb.from('clientes').select('*').order('nombre');
+  if (error) { toast(error.message, 'error'); return; }
+  allClientes = data || [];
+  renderClientes();
 }
 
-async function loadProyeccion(){
-  try{
-    var hoy=new Date(),en30=new Date();en30.setDate(hoy.getDate()+30);
-    var rf=await sbGet('vista_metricas?select=precio_servicio,fecha_hora_local,servicio,nombre_completo&estado=eq.confirmado&fecha_hora_local=gte.'+hoy.toISOString()+'&fecha_hora_local=lte.'+en30.toISOString());
-    var fut=rf||[];
-    var rh=await sbGet('vista_metricas?select=precio_servicio&estado=eq.completado');
-    var hist=rh||[];
-    document.getElementById('pcitas').textContent=fut.length;
-    document.getElementById('ping').textContent=fmtFull(fut.reduce(function(s,c){return s+(c.precio_servicio||0);},0));
-    document.getElementById('pprom').textContent=fmtFull(hist.length?hist.reduce(function(s,c){return s+(c.precio_servicio||0);},0)/6:0);
-    var tb=document.getElementById('tbp');
-    if(!fut.length){tb.innerHTML='<tr><td colspan="4" class="empty">No hay citas futuras confirmadas</td></tr>';return;}
-    tb.innerHTML=fut.slice(0,15).map(function(c){
-      return '<tr><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+(c.servicio||'—')+'</td><td>'+(c.nombre_completo||'—')+'</td><td style="color:var(--gold)">'+fmtFull(c.precio_servicio)+'</td></tr>';
-    }).join('');
-  }catch(e){console.warn('Proyeccion:',e.message);}
+function renderClientes() {
+  const q = $('cli-search').value.toLowerCase();
+  const list = allClientes.filter(c =>
+    `${c.nombre} ${c.apellido||''} ${c.email||''}`.toLowerCase().includes(q));
+  $('tbc').innerHTML = list.length ? list.map(c => `
+    <tr>
+      <td>${c.nombre} ${c.apellido||''}</td>
+      <td>${c.email||'—'}</td>
+      <td>${c.telefono||'—'}</td>
+      <td>${allReservas.filter(r=>r.cliente_id==c.id).length}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editCliente('${c.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCliente('${c.id}')">🗑️</button>
+      </td>
+    </tr>`).join('')
+    : '<tr><td colspan="5" style="text-align:center;color:#aaa;padding:32px">Sin resultados</td></tr>';
 }
 
-async function cambiar(id,estado){
-  if(!confirm(estado==='completado'?'Marcar como completada?':'Cancelar esta cita?'))return;
-  try{
-    await sbPatch('citas?id=eq.'+id,{estado:estado});
-    loadActivas();
-    if(estado==='cancelado')loadCancel();
-    loadKPIs();
-  }catch(e){alert('Error: '+e.message);}
+$('cli-search').oninput = renderClientes;
+$('btn-nuevo-cliente').onclick = () => openClienteModal();
+
+function openClienteModal(id) {
+  $('modal-cliente-title').textContent = id ? 'Editar Cliente' : 'Nuevo Cliente';
+  $('cli-id').value = id || '';
+  if (id) {
+    const c = allClientes.find(x => x.id == id);
+    if (c) {
+      $('cli-nombre').value   = c.nombre || '';
+      $('cli-apellido').value = c.apellido || '';
+      $('cli-email').value    = c.email || '';
+      $('cli-telefono').value = c.telefono || '';
+    }
+  } else {
+    ['cli-nombre','cli-apellido','cli-email','cli-telefono'].forEach(i => $(i).value = '');
+  }
+  $('modal-cliente').classList.remove('hidden');
 }
 
-var saved=localStorage.getItem('sb_token');
-if(saved){TOKEN=saved;showDash();}
-else{document.getElementById('login-screen').style.display='flex';}
+window.editCliente   = id => openClienteModal(id);
+window.deleteCliente = async id => {
+  if (!confirm('¿Eliminar este cliente?')) return;
+  const { error } = await sb.from('clientes').delete().eq('id', id);
+  if (error) toast(error.message, 'error');
+  else { toast('Cliente eliminado'); await loadClientes(); }
+};
+
+$('modal-cliente-cancel').onclick = () => $('modal-cliente').classList.add('hidden');
+$('modal-cliente-save').onclick   = async () => {
+  const id = $('cli-id').value;
+  const payload = {
+    nombre:   $('cli-nombre').value,
+    apellido: $('cli-apellido').value || null,
+    email:    $('cli-email').value || null,
+    telefono: $('cli-telefono').value || null,
+  };
+  let error;
+  if (id) ({ error } = await sb.from('clientes').update(payload).eq('id', id));
+  else    ({ error } = await sb.from('clientes').insert(payload));
+  if (error) toast(error.message, 'error');
+  else {
+    toast(id ? 'Cliente actualizado ✓' : 'Cliente creado ✓');
+    $('modal-cliente').classList.add('hidden');
+    await loadClientes();
+  }
+};
+
+/* ─────────────────────────────
+   SERVICIOS
+───────────────────────────── */
+async function loadServicios() {
+  const { data, error } = await sb.from('servicios').select('*').order('nombre');
+  if (error) { toast(error.message, 'error'); return; }
+  allServicios = data || [];
+  renderServicios();
+}
+
+function renderServicios() {
+  $('tbs').innerHTML = allServicios.length ? allServicios.map(s => `
+    <tr>
+      <td>${s.nombre}</td>
+      <td>${s.categoria||'—'}</td>
+      <td>${s.duracion_minutos ? s.duracion_minutos + ' min' : '—'}</td>
+      <td>${fmt.money(s.precio)}</td>
+      <td>${s.activo !== false ? '✅' : '❌'}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editServicio('${s.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteServicio('${s.id}')">🗑️</button>
+      </td>
+    </tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:32px">Sin servicios</td></tr>';
+}
+
+$('btn-nuevo-servicio').onclick = () => openServicioModal();
+
+function openServicioModal(id) {
+  $('modal-servicio-title').textContent = id ? 'Editar Servicio' : 'Nuevo Servicio';
+  $('svc-id').value = id || '';
+  if (id) {
+    const s = allServicios.find(x => x.id == id);
+    if (s) {
+      $('svc-nombre').value      = s.nombre || '';
+      $('svc-categoria').value   = s.categoria || '';
+      $('svc-duracion').value    = s.duracion_minutos || '';
+      $('svc-precio').value      = s.precio || '';
+      $('svc-descripcion').value = s.descripcion || '';
+    }
+  } else {
+    ['svc-nombre','svc-categoria','svc-duracion','svc-precio','svc-descripcion']
+      .forEach(i => $(i).value = '');
+  }
+  $('modal-servicio').classList.remove('hidden');
+}
+
+window.editServicio   = id => openServicioModal(id);
+window.deleteServicio = async id => {
+  if (!confirm('¿Eliminar este servicio?')) return;
+  const { error } = await sb.from('servicios').delete().eq('id', id);
+  if (error) toast(error.message, 'error');
+  else { toast('Servicio eliminado'); await loadServicios(); }
+};
+
+$('modal-servicio-cancel').onclick = () => $('modal-servicio').classList.add('hidden');
+$('modal-servicio-save').onclick   = async () => {
+  const id = $('svc-id').value;
+  const payload = {
+    nombre:            $('svc-nombre').value,
+    categoria:         $('svc-categoria').value || null,
+    duracion_minutos:  parseInt($('svc-duracion').value) || null,
+    precio:            parseFloat($('svc-precio').value) || null,
+    descripcion:       $('svc-descripcion').value || null,
+  };
+  let error;
+  if (id) ({ error } = await sb.from('servicios').update(payload).eq('id', id));
+  else    ({ error } = await sb.from('servicios').insert(payload));
+  if (error) toast(error.message, 'error');
+  else {
+    toast(id ? 'Servicio actualizado ✓' : 'Servicio creado ✓');
+    $('modal-servicio').classList.add('hidden');
+    await loadServicios();
+  }
+};
+
+/* ─────────────────────────────
+   PROFESIONALES
+───────────────────────────── */
+async function loadProfesionales() {
+  const { data, error } = await sb.from('profesionales').select('*').order('nombre');
+  if (error) { toast(error.message, 'error'); return; }
+  allProfesionales = data || [];
+  renderProfesionales();
+}
+
+function renderProfesionales() {
+  $('tbp').innerHTML = allProfesionales.length ? allProfesionales.map(p => `
+    <tr>
+      <td>${p.nombre} ${p.apellido||''}</td>
+      <td>${p.especialidad||'—'}</td>
+      <td>${p.email||'—'}</td>
+      <td>${p.telefono||'—'}</td>
+      <td>${p.activo !== false ? '✅' : '❌'}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editProf('${p.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProf('${p.id}')">🗑️</button>
+      </td>
+    </tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:32px">Sin profesionales</td></tr>';
+}
+
+$('btn-nuevo-prof').onclick = () => openProfModal();
+
+function openProfModal(id) {
+  $('modal-prof-title').textContent = id ? 'Editar Profesional' : 'Nueva Profesional';
+  $('prof-id').value = id || '';
+  if (id) {
+    const p = allProfesionales.find(x => x.id == id);
+    if (p) {
+      $('prof-nombre').value       = p.nombre || '';
+      $('prof-apellido').value     = p.apellido || '';
+      $('prof-especialidad').value = p.especialidad || '';
+      $('prof-email').value        = p.email || '';
+      $('prof-telefono').value     = p.telefono || '';
+    }
+  } else {
+    ['prof-nombre','prof-apellido','prof-especialidad','prof-email','prof-telefono']
+      .forEach(i => $(i).value = '');
+  }
+  $('modal-prof').classList.remove('hidden');
+}
+
+window.editProf   = id => openProfModal(id);
+window.deleteProf = async id => {
+  if (!confirm('¿Eliminar esta profesional?')) return;
+  const { error } = await sb.from('profesionales').delete().eq('id', id);
+  if (error) toast(error.message, 'error');
+  else { toast('Profesional eliminada'); await loadProfesionales(); }
+};
+
+$('modal-prof-cancel').onclick = () => $('modal-prof').classList.add('hidden');
+$('modal-prof-save').onclick   = async () => {
+  const id = $('prof-id').value;
+  const payload = {
+    nombre:       $('prof-nombre').value,
+    apellido:     $('prof-apellido').value || null,
+    especialidad: $('prof-especialidad').value || null,
+    email:        $('prof-email').value || null,
+    telefono:     $('prof-telefono').value || null,
+  };
+  let error;
+  if (id) ({ error } = await sb.from('profesionales').update(payload).eq('id', id));
+  else    ({ error } = await sb.from('profesionales').insert(payload));
+  if (error) toast(error.message, 'error');
+  else {
+    toast(id ? 'Profesional actualizada ✓' : 'Profesional creada ✓');
+    $('modal-prof').classList.add('hidden');
+    await loadProfesionales();
+  }
+};
+
+/* ─────────────────────────────
+   Close modal on backdrop click
+───────────────────────────── */
+document.querySelectorAll('.modal-backdrop').forEach(bd => {
+  bd.onclick = e => { if (e.target === bd) bd.classList.add('hidden'); };
+});
 </script>
 </body>
 </html>
