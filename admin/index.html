@@ -7,7 +7,6 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -28,6 +27,7 @@ input:focus,select:focus{border-color:var(--gold-b);background:var(--bg4)}
 input::placeholder{color:var(--dim)}
 label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
 
+/* LOGIN */
 #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(201,168,76,.05) 0%,transparent 70%)}
 .lcard{width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border);padding:3rem}
 .llogo{font-family:var(--fd);font-size:2rem;font-weight:300;text-align:center;margin-bottom:.25rem}
@@ -35,10 +35,11 @@ label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercas
 .lsub{text-align:center;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:2.5rem}
 .ldiv{width:40px;height:1px;background:var(--gold);margin:0 auto 2.5rem}
 .fgrp{margin-bottom:1rem}
-.lbtn{width:100%;padding:1rem;background:var(--gold);color:var(--bg);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;border-radius:3px;transition:var(--tr);margin-top:.5rem;font-family:var(--fb)}
-.lbtn:hover{background:var(--gold-l)}.lbtn:disabled{opacity:.5}
-.lerr{margin-top:.9rem;padding:.75rem;background:var(--err-bg);border:1px solid var(--err-b);color:var(--err-c);font-size:.72rem;text-align:center;display:none}
+.lbtn{width:100%;padding:1rem;background:var(--gold);color:var(--bg);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;border-radius:3px;transition:var(--tr);margin-top:.5rem;font-family:var(--fb);cursor:pointer;border:none}
+.lbtn:hover{background:var(--gold-l)}.lbtn:disabled{opacity:.5;cursor:not-allowed}
+.lerr{margin-top:.9rem;padding:.75rem;background:var(--err-bg);border:1px solid var(--err-b);color:var(--err-c);font-size:.72rem;text-align:center;display:none;border-radius:3px}
 
+/* DASH */
 #dash-screen{display:none}
 .dlayout{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
 .sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:2rem 0;position:fixed;width:230px;height:100vh;display:flex;flex-direction:column;overflow-y:auto}
@@ -53,14 +54,13 @@ label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercas
 .sbnav li a:hover{color:var(--text);background:var(--bg3)}
 .sbnav li a.active{color:var(--gold);background:var(--gold-m);border-left:2px solid var(--gold)}
 .sbbot{margin-top:auto;padding:1.5rem 1rem 0;border-top:1px solid var(--border)}
-.logoutbtn{width:100%;display:flex;align-items:center;gap:.7rem;padding:.6rem .75rem;color:var(--muted);font-size:.73rem;border-radius:3px;transition:var(--tr);text-align:left}
+.logoutbtn{width:100%;display:flex;align-items:center;gap:.7rem;padding:.6rem .75rem;color:var(--muted);font-size:.73rem;border-radius:3px;transition:var(--tr);text-align:left;cursor:pointer}
 .logoutbtn:hover{color:var(--err-c);background:rgba(138,58,58,.1)}
 .dmain{margin-left:230px;padding:2rem 2.5rem;min-height:100vh}
 .dtopbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
 .dtitle{font-family:var(--fd);font-size:1.8rem;font-weight:300}
 .ddate{font-size:.7rem;color:var(--muted)}
 .panel{display:none}.panel.active{display:block}
-
 .kgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
 .kgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
 .kcard{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;position:relative;overflow:hidden;transition:var(--tr)}
@@ -70,15 +70,13 @@ label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercas
 .kval{font-family:var(--fd);font-size:1.9rem;font-weight:400;line-height:1;margin-bottom:.4rem}
 .kval.g{color:var(--gold)}
 .ksub{font-size:.65rem;color:var(--muted)}
-
 .cgrid{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem}
 .ccard{background:var(--bg2);border:1px solid var(--border);padding:1.5rem}
 .ctitle{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.5rem}
-
 .tcard{background:var(--bg2);border:1px solid var(--border);overflow:hidden;margin-bottom:1.5rem}
 .thead2{padding:1.1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .ttitle{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.rbtn{padding:.3rem .75rem;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:2px;transition:var(--tr)}
+.rbtn{padding:.3rem .75rem;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:2px;transition:var(--tr);cursor:pointer;font-family:var(--fb)}
 .rbtn:hover{border-color:var(--gold-b);color:var(--gold)}
 .dtable{width:100%;border-collapse:collapse}
 .dtable th{padding:.7rem 1.5rem;text-align:left;font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--border);font-weight:500}
@@ -105,12 +103,10 @@ label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercas
     <div class="llogo">Sallon<em>Bella</em></div>
     <div class="lsub">Panel Administrativo</div>
     <div class="ldiv"></div>
-    <form id="lform">
-      <div class="fgrp"><label>Email</label><input type="email" id="lemail" placeholder="admin@sallonbella.com" required></div>
-      <div class="fgrp"><label>Contrasena</label><input type="password" id="lpass" placeholder="..." required></div>
-      <button type="submit" class="lbtn" id="lbtn">Ingresar</button>
-      <div class="lerr" id="lerr"></div>
-    </form>
+    <div class="fgrp"><label>Email</label><input type="email" id="lemail" placeholder="tu@email.com" autocomplete="email"></div>
+    <div class="fgrp"><label>Contrasena</label><input type="password" id="lpass" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="lbtn" id="lbtn" onclick="doLogin()">Ingresar</button>
+    <div class="lerr" id="lerr"></div>
   </div>
 </div>
 
@@ -133,14 +129,13 @@ label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercas
           <li><a href="#" data-panel="pp" data-title="Proyeccion">Proyeccion</a></li>
         </ul>
       </div>
-      <div class="sbbot"><button class="logoutbtn" id="lout">Cerrar sesion</button></div>
+      <div class="sbbot"><button class="logoutbtn" onclick="doLogout()">Cerrar sesion</button></div>
     </aside>
     <main class="dmain">
       <div class="dtopbar">
         <h1 class="dtitle" id="ptitle">Resumen del dia</h1>
         <span class="ddate" id="ddate"></span>
       </div>
-
       <div class="panel active" id="pr">
         <div class="kgrid">
           <div class="kcard"><div class="klbl">Citas hoy</div><div class="kval" id="khoy">—</div><div class="ksub">turnos confirmados</div></div>
@@ -153,21 +148,18 @@ label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercas
           <div class="ccard"><div class="ctitle">Servicios por demanda</div><canvas id="cs" height="180"></canvas></div>
         </div>
       </div>
-
       <div class="panel" id="pa">
         <div class="tcard">
           <div class="thead2"><span class="ttitle">Reservas confirmadas</span><button class="rbtn" onclick="loadActivas()">Actualizar</button></div>
           <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha y hora</th><th>Telefono</th><th>Canal</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tba"></tbody></table></div>
         </div>
       </div>
-
       <div class="panel" id="pc">
         <div class="tcard">
           <div class="thead2"><span class="ttitle">Historial de cancelaciones</span><button class="rbtn" onclick="loadCancel()">Actualizar</button></div>
           <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha y hora</th><th>Telefono</th><th>Estado</th></tr></thead><tbody id="tbc"></tbody></table></div>
         </div>
       </div>
-
       <div class="panel" id="pi">
         <div class="ccard" style="margin-bottom:1rem"><div class="ctitle">Ingresos mensuales ultimos 6 meses</div><canvas id="cm" height="120"></canvas></div>
         <div class="cgrid">
@@ -175,7 +167,6 @@ label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercas
           <div class="ccard"><div class="ctitle">Por servicio</div><canvas id="cs2" height="160"></canvas></div>
         </div>
       </div>
-
       <div class="panel" id="pp">
         <div class="kgrid3">
           <div class="kcard"><div class="klbl">Citas futuras confirmadas</div><div class="kval" id="pcitas">—</div><div class="ksub">proximos 30 dias</div></div>
@@ -187,84 +178,162 @@ label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercas
           <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>Fecha y hora</th><th>Servicio</th><th>Cliente</th><th>Ingreso esperado</th></tr></thead><tbody id="tbp"></tbody></table></div>
         </div>
       </div>
-
     </main>
   </div>
 </div>
 
 <script>
+// ── CONFIG ──
 var SB_URL = 'https://glczaecmkniqdmqkvfxc.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsY3phZWNta25pcWRtcWt2ZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1OTEyNDcsImV4cCI6MjA5MzE2NzI0N30.2i8E4KX_ocyca-yRT_4fG6y85dpH3J-0f6gOsmn-O2c';
 var TZ = 'America/Argentina/Buenos_Aires';
-var sb = supabase.createClient(SB_URL, SB_KEY);
+var TOKEN = null;
 var charts = {};
 
+// ── HELPERS ──
 function fmt$(n){return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS'}).format(n||0);}
 function fmtD(iso){if(!iso)return '--';return new Date(iso).toLocaleString('es-AR',{timeZone:TZ,day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
 function today(){return new Date().toLocaleDateString('en-CA',{timeZone:TZ});}
-function load(id,cols){return '<tr><td colspan="'+cols+'" class="loading"><div class="spin"></div>Cargando...</td></tr>';}
-function empty(id,cols,msg){return '<tr><td colspan="'+cols+'" class="empty">'+(msg||'Sin datos')+'</td></tr>';}
 
-// AUTH
-document.getElementById('lform').addEventListener('submit', async function(e){
-  e.preventDefault();
-  var btn=document.getElementById('lbtn');
-  var err=document.getElementById('lerr');
-  btn.disabled=true; btn.textContent='Verificando...'; err.style.display='none';
-  var r=await sb.auth.signInWithPassword({email:document.getElementById('lemail').value.trim(),password:document.getElementById('lpass').value});
-  if(r.error){err.textContent='Credenciales incorrectas.';err.style.display='block';btn.disabled=false;btn.textContent='Ingresar';}
-  else showDash();
-});
-
-document.getElementById('lout').addEventListener('click',async function(){
-  await sb.auth.signOut();
-  document.getElementById('dash-screen').style.display='none';
-  document.getElementById('login-screen').style.display='flex';
-});
-
-async function checkSession(){
-  var s=await sb.auth.getSession();
-  if(s.data&&s.data.session) showDash();
-  else document.getElementById('login-screen').style.display='flex';
+// ── API ──
+async function sbFetch(path, opts) {
+  opts = opts || {};
+  var headers = {
+    'apikey': SB_KEY,
+    'Content-Type': 'application/json'
+  };
+  if (TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
+  else headers['Authorization'] = 'Bearer ' + SB_KEY;
+  if (opts.prefer) headers['Prefer'] = opts.prefer;
+  var url = SB_URL + '/rest/v1/' + path;
+  var res = await fetch(url, {
+    method: opts.method || 'GET',
+    headers: headers,
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  if (!res.ok) {
+    var err = await res.text();
+    throw new Error(err);
+  }
+  var ct = res.headers.get('content-type') || '';
+  if (ct.indexOf('json') >= 0) return await res.json();
+  return null;
 }
 
-function showDash(){
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('dash-screen').style.display='block';
-  document.getElementById('ddate').textContent=new Date().toLocaleDateString('es-AR',{timeZone:TZ,weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  loadAll();
+async function sbAuth(email, password) {
+  var res = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+    method: 'POST',
+    headers: {
+      'apikey': SB_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({email: email, password: password})
+  });
+  var data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || 'Credenciales incorrectas');
+  return data;
 }
 
-// NAV
-document.querySelectorAll('.sbnav a').forEach(function(a){
-  a.addEventListener('click',function(e){
+async function sbSignOut() {
+  if (!TOKEN) return;
+  await fetch(SB_URL + '/auth/v1/logout', {
+    method: 'POST',
+    headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + TOKEN}
+  });
+  TOKEN = null;
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  var email = document.getElementById('lemail').value.trim();
+  var pass = document.getElementById('lpass').value;
+  var btn = document.getElementById('lbtn');
+  var err = document.getElementById('lerr');
+  err.style.display = 'none';
+  if (!email || !pass) {
+    err.textContent = 'Completá todos los campos.';
+    err.style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+  try {
+    var data = await sbAuth(email, pass);
+    TOKEN = data.access_token;
+    localStorage.setItem('sb_token', TOKEN);
+    showDash();
+  } catch(e) {
+    err.textContent = e.message || 'Credenciales incorrectas. Intentá de nuevo.';
+    err.style.display = 'block';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Ingresar';
+}
+
+async function doLogout() {
+  await sbSignOut();
+  localStorage.removeItem('sb_token');
+  document.getElementById('dash-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// Enter key en password
+document.getElementById('lpass').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('lemail').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ── NAV ──
+document.querySelectorAll('.sbnav a').forEach(function(a) {
+  a.addEventListener('click', function(e) {
     e.preventDefault();
     document.querySelectorAll('.sbnav a').forEach(function(x){x.classList.remove('active');});
     a.classList.add('active');
     document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
-    var el=document.getElementById(a.dataset.panel);
-    if(el) el.classList.add('active');
-    document.getElementById('ptitle').textContent=a.dataset.title||'Dashboard';
+    var el = document.getElementById(a.dataset.panel);
+    if (el) el.classList.add('active');
+    document.getElementById('ptitle').textContent = a.dataset.title || 'Dashboard';
   });
 });
 
-function loadAll(){loadKPIs();loadCharts();loadActivas();loadCancel();loadProyeccion();}
-
-// KPIs
-async function loadKPIs(){
-  var hoy=today();
-  var r1=await sb.from('vista_metricas').select('precio_servicio').eq('fecha',hoy).neq('estado','cancelado');
-  var ch=r1.data||[];
-  var r2=await sb.from('citas').select('id',{count:'exact',head:true}).eq('estado','confirmado');
-  var d1=new Date();d1.setDate(1);d1.setHours(0,0,0,0);
-  var r3=await sb.from('vista_metricas').select('precio_servicio').eq('estado','completado').gte('fecha_hora_local',d1.toISOString());
-  document.getElementById('khoy').textContent=ch.length;
-  document.getElementById('kinghoy').textContent=fmt$(ch.reduce(function(s,c){return s+(c.precio_servicio||0);},0));
-  document.getElementById('kact').textContent=r2.count||0;
-  document.getElementById('kmes').textContent=fmt$((r3.data||[]).reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+// ── SHOW DASH ──
+function showDash() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dash-screen').style.display = 'block';
+  document.getElementById('ddate').textContent = new Date().toLocaleDateString('es-AR',{timeZone:TZ,weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  loadAll();
 }
 
-// CHARTS
+// ── LOAD ALL ──
+function loadAll(){loadKPIs();loadCharts();loadActivas();loadCancel();loadProyeccion();}
+
+// ── KPIs ──
+async function loadKPIs() {
+  try {
+    var hoy = today();
+    var r1 = await sbFetch('vista_metricas?select=precio_servicio&fecha=eq.' + hoy + '&estado=neq.cancelado');
+    var ch = r1 || [];
+    var r2 = await sbFetch('citas?select=id&estado=eq.confirmado', {prefer: 'count=exact'});
+    // count via head
+    var countRes = await fetch(SB_URL + '/rest/v1/citas?select=id&estado=eq.confirmado', {
+      method: 'HEAD',
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + (TOKEN||SB_KEY), 'Prefer': 'count=exact'}
+    });
+    var count = countRes.headers.get('content-range');
+    var total = count ? count.split('/')[1] : '?';
+    var d1 = new Date(); d1.setDate(1); d1.setHours(0,0,0,0);
+    var r3 = await sbFetch('vista_metricas?select=precio_servicio&estado=eq.completado&fecha_hora_local=gte.' + d1.toISOString());
+    var mes = r3 || [];
+    document.getElementById('khoy').textContent = ch.length;
+    document.getElementById('kinghoy').textContent = fmt$(ch.reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+    document.getElementById('kact').textContent = total;
+    document.getElementById('kmes').textContent = fmt$(mes.reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+  } catch(e) { console.warn('KPIs error:', e); }
+}
+
+// ── CHARTS ──
 function mkChart(id,type,labels,data){
   if(charts[id]){charts[id].destroy();}
   var ctx=document.getElementById(id);
@@ -283,88 +352,102 @@ function mkChart(id,type,labels,data){
 }
 
 async function loadCharts(){
-  var meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  var lD=[],vD=[];
-  for(var i=6;i>=0;i--){
-    var d=new Date();d.setDate(d.getDate()-i);
-    var f=d.toLocaleDateString('en-CA',{timeZone:TZ});
-    lD.push(d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric'}));
-    var r=await sb.from('vista_metricas').select('precio_servicio').eq('fecha',f).eq('estado','completado');
-    vD.push((r.data||[]).reduce(function(s,c){return s+(c.precio_servicio||0);},0));
-  }
-  mkChart('cd','bar',lD,vD);mkChart('cd2','bar',lD,vD);
-  var rs=await sb.from('vista_metricas').select('servicio').neq('estado','cancelado');
-  if(rs.data&&rs.data.length){
-    var cnt={};rs.data.forEach(function(c){cnt[c.servicio]=(cnt[c.servicio]||0)+1;});
-    var s=Object.entries(cnt).sort(function(a,b){return b[1]-a[1];});
-    mkChart('cs','doughnut',s.map(function(x){return x[0];}),s.map(function(x){return x[1];}));
-    mkChart('cs2','doughnut',s.map(function(x){return x[0];}),s.map(function(x){return x[1];}));
-  }
-  var lM=[],vM=[];
-  for(var j=5;j>=0;j--){
-    var dm=new Date();dm.setMonth(dm.getMonth()-j);
-    var mes=dm.getMonth()+1;var anio=dm.getFullYear();
-    lM.push(meses[dm.getMonth()]+' '+anio);
-    var rm=await sb.from('vista_metricas').select('precio_servicio').eq('estado','completado').gte('fecha_hora_local',new Date(anio,mes-1,1).toISOString()).lt('fecha_hora_local',new Date(anio,mes,1).toISOString());
-    vM.push((rm.data||[]).reduce(function(s,c){return s+(c.precio_servicio||0);},0));
-  }
-  mkChart('cm','line',lM,vM);
+  try {
+    var lD=[],vD=[];
+    for(var i=6;i>=0;i--){
+      var d=new Date();d.setDate(d.getDate()-i);
+      var f=d.toLocaleDateString('en-CA',{timeZone:TZ});
+      lD.push(d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric'}));
+      var r=await sbFetch('vista_metricas?select=precio_servicio&fecha=eq.'+f+'&estado=eq.completado');
+      vD.push((r||[]).reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+    }
+    mkChart('cd','bar',lD,vD);mkChart('cd2','bar',lD,vD);
+    var rs=await sbFetch('vista_metricas?select=servicio&estado=neq.cancelado');
+    if(rs&&rs.length){
+      var cnt={};rs.forEach(function(c){cnt[c.servicio]=(cnt[c.servicio]||0)+1;});
+      var s=Object.entries(cnt).sort(function(a,b){return b[1]-a[1];});
+      mkChart('cs','doughnut',s.map(function(x){return x[0];}),s.map(function(x){return x[1];}));
+      mkChart('cs2','doughnut',s.map(function(x){return x[0];}),s.map(function(x){return x[1];}));
+    }
+    var lM=[],vM=[];
+    for(var j=5;j>=0;j--){
+      var dm=new Date();dm.setMonth(dm.getMonth()-j);
+      var mes=dm.getMonth()+1;var anio=dm.getFullYear();
+      lM.push(['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][dm.getMonth()]+' '+anio);
+      var rm=await sbFetch('vista_metricas?select=precio_servicio&estado=eq.completado&fecha_hora_local=gte.'+new Date(anio,mes-1,1).toISOString()+'&fecha_hora_local=lt.'+new Date(anio,mes,1).toISOString());
+      vM.push((rm||[]).reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+    }
+    mkChart('cm','line',lM,vM);
+  } catch(e) { console.warn('Charts error:', e); }
 }
 
-// ACTIVAS
+// ── ACTIVAS ──
 async function loadActivas(){
   var tb=document.getElementById('tba');
-  tb.innerHTML=load('',7);
-  var r=await sb.from('vista_metricas').select('*').eq('estado','confirmado').order('fecha_hora_local',{ascending:true});
-  if(!r.data||!r.data.length){tb.innerHTML=empty('',7,'No hay reservas activas');return;}
-  tb.innerHTML=r.data.map(function(c){
-    return '<tr><td style="color:var(--text)">'+c.nombre_completo+'</td><td>'+c.servicio+'</td><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+(c.telefono||'--')+'</td><td style="font-size:.65rem">'+(c.medio_reserva==='formulario'?'Web':'WhatsApp')+'</td><td><span class="badge bc">Confirmado</span></td><td>'+
-      '<button class="abtn" onclick="cambiar(''+c.id+'','completado')">Completar</button>'+
-      '<button class="abtn cx" onclick="cambiar(''+c.id+'','cancelado')">Cancelar</button></td></tr>';
-  }).join('');
+  tb.innerHTML='<tr><td colspan="7" class="loading"><div class="spin"></div>Cargando...</td></tr>';
+  try {
+    var r=await sbFetch('vista_metricas?select=*&estado=eq.confirmado&order=fecha_hora_local.asc');
+    if(!r||!r.length){tb.innerHTML='<tr><td colspan="7" class="empty">No hay reservas activas</td></tr>';return;}
+    tb.innerHTML=r.map(function(c){
+      return '<tr><td style="color:var(--text)">'+c.nombre_completo+'</td><td>'+c.servicio+'</td><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+(c.telefono||'--')+'</td><td style="font-size:.65rem">'+(c.medio_reserva==='formulario'?'Web':'WhatsApp')+'</td><td><span class="badge bc">Confirmado</span></td><td>'+
+        '<button class="abtn" onclick="cambiar(\''+c.id+'\',\'completado\')">Completar</button>'+
+        '<button class="abtn cx" onclick="cambiar(\''+c.id+'\',\'cancelado\')">Cancelar</button></td></tr>';
+    }).join('');
+  } catch(e) { tb.innerHTML='<tr><td colspan="7" class="empty">Error al cargar datos</td></tr>'; console.warn(e); }
 }
 
-// CANCELADOS
+// ── CANCELADOS ──
 async function loadCancel(){
   var tb=document.getElementById('tbc');
-  tb.innerHTML=load('',5);
-  var r=await sb.from('vista_metricas').select('*').eq('estado','cancelado').order('fecha_hora_local',{ascending:false}).limit(50);
-  if(!r.data||!r.data.length){tb.innerHTML=empty('',5,'No hay cancelaciones');return;}
-  tb.innerHTML=r.data.map(function(c){
-    return '<tr><td style="color:var(--text)">'+c.nombre_completo+'</td><td>'+c.servicio+'</td><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+(c.telefono||'--')+'</td><td><span class="badge bx">Cancelado</span></td></tr>';
-  }).join('');
+  tb.innerHTML='<tr><td colspan="5" class="loading"><div class="spin"></div>Cargando...</td></tr>';
+  try {
+    var r=await sbFetch('vista_metricas?select=*&estado=eq.cancelado&order=fecha_hora_local.desc&limit=50');
+    if(!r||!r.length){tb.innerHTML='<tr><td colspan="5" class="empty">No hay cancelaciones</td></tr>';return;}
+    tb.innerHTML=r.map(function(c){
+      return '<tr><td style="color:var(--text)">'+c.nombre_completo+'</td><td>'+c.servicio+'</td><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+(c.telefono||'--')+'</td><td><span class="badge bx">Cancelado</span></td></tr>';
+    }).join('');
+  } catch(e) { tb.innerHTML='<tr><td colspan="5" class="empty">Error al cargar datos</td></tr>'; console.warn(e); }
 }
 
-// PROYECCION
+// ── PROYECCION ──
 async function loadProyeccion(){
-  var hoy=new Date();var en30=new Date();en30.setDate(hoy.getDate()+30);
-  var rf=await sb.from('vista_metricas').select('precio_servicio,fecha_hora_local,servicio,nombre_completo').eq('estado','confirmado').gte('fecha_hora_local',hoy.toISOString()).lte('fecha_hora_local',en30.toISOString());
-  var fut=rf.data||[];
-  var rh=await sb.from('vista_metricas').select('precio_servicio').eq('estado','completado');
-  var hist=rh.data||[];
-  document.getElementById('pcitas').textContent=fut.length;
-  document.getElementById('ping').textContent=fmt$(fut.reduce(function(s,c){return s+(c.precio_servicio||0);},0));
-  document.getElementById('pprom').textContent=fmt$(hist.length?hist.reduce(function(s,c){return s+(c.precio_servicio||0);},0)/6:0);
-  var tb=document.getElementById('tbp');
-  if(!fut.length){tb.innerHTML=empty('',4,'No hay citas futuras confirmadas');return;}
-  tb.innerHTML=fut.slice(0,15).map(function(c){
-    return '<tr><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+c.servicio+'</td><td>'+c.nombre_completo+'</td><td style="color:var(--gold)">'+fmt$(c.precio_servicio)+'</td></tr>';
-  }).join('');
+  try {
+    var hoy=new Date();var en30=new Date();en30.setDate(hoy.getDate()+30);
+    var rf=await sbFetch('vista_metricas?select=precio_servicio,fecha_hora_local,servicio,nombre_completo&estado=eq.confirmado&fecha_hora_local=gte.'+hoy.toISOString()+'&fecha_hora_local=lte.'+en30.toISOString());
+    var fut=rf||[];
+    var rh=await sbFetch('vista_metricas?select=precio_servicio&estado=eq.completado');
+    var hist=rh||[];
+    document.getElementById('pcitas').textContent=fut.length;
+    document.getElementById('ping').textContent=fmt$(fut.reduce(function(s,c){return s+(c.precio_servicio||0);},0));
+    document.getElementById('pprom').textContent=fmt$(hist.length?hist.reduce(function(s,c){return s+(c.precio_servicio||0);},0)/6:0);
+    var tb=document.getElementById('tbp');
+    if(!fut.length){tb.innerHTML='<tr><td colspan="4" class="empty">No hay citas futuras confirmadas</td></tr>';return;}
+    tb.innerHTML=fut.slice(0,15).map(function(c){
+      return '<tr><td>'+fmtD(c.fecha_hora_local)+'</td><td>'+c.servicio+'</td><td>'+c.nombre_completo+'</td><td style="color:var(--gold)">'+fmt$(c.precio_servicio)+'</td></tr>';
+    }).join('');
+  } catch(e) { console.warn('Proyeccion error:', e); }
 }
 
-// CAMBIAR ESTADO
-async function cambiar(id,estado){
+// ── CAMBIAR ESTADO ──
+async function cambiar(id, estado){
   if(!confirm(estado==='completado'?'Marcar como completada?':'Cancelar esta cita?'))return;
-  var r=await sb.from('citas').update({estado:estado}).eq('id',id);
-  if(!r.error){loadActivas();if(estado==='cancelado')loadCancel();loadKPIs();}
-  else alert('Error al actualizar.');
+  try {
+    await sbFetch('citas?id=eq.'+id, {method:'PATCH', body:{estado:estado}, prefer:'return=minimal'});
+    loadActivas();
+    if(estado==='cancelado') loadCancel();
+    loadKPIs();
+  } catch(e) { alert('Error al actualizar: ' + e.message); }
 }
 
-window.loadActivas=loadActivas;
-window.loadCancel=loadCancel;
-window.cambiar=cambiar;
-
-checkSession();
+// ── INIT ──
+// Verificar token guardado
+var savedToken = localStorage.getItem('sb_token');
+if (savedToken) {
+  TOKEN = savedToken;
+  showDash();
+} else {
+  document.getElementById('login-screen').style.display = 'flex';
+}
 </script>
 </body>
 </html>
