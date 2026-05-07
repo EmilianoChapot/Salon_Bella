@@ -6,70 +6,43 @@
   <title>Admin — Sallon Bella</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* ── Reset & base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                   Helvetica, Arial, sans-serif;
-      background: #f0f2f5;
-      color: #1a1a2e;
-      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #f0f2f5; color: #1a1a2e; min-height: 100vh;
     }
 
-    /* ── Login overlay ── */
+    /* LOGIN */
     #login-overlay {
       position: fixed; inset: 0;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 9999;
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
     }
     #login-overlay.hidden { display: none; }
-
     .login-card {
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 40px 36px;
-      width: 100%; max-width: 400px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      background: #fff; border-radius: 16px; padding: 40px 36px;
+      width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,.4);
     }
-    .login-card h1 {
-      font-size: 26px; font-weight: 700;
-      color: #1a1a2e; margin-bottom: 6px;
-    }
+    .login-card h1 { font-size: 26px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
     .login-card p { color: #666; font-size: 14px; margin-bottom: 28px; }
-
-    .login-card label {
-      display: block; font-size: 13px; font-weight: 600;
-      color: #333; margin-bottom: 6px;
-    }
+    .login-card label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
     .login-card input {
-      width: 100%; padding: 11px 14px; border-radius: 8px;
-      border: 1.5px solid #ddd; font-size: 15px;
-      color: #1a1a2e; background: #fafafa;
-      margin-bottom: 18px; outline: none;
-      transition: border-color .2s;
+      width: 100%; padding: 11px 14px; border-radius: 8px; border: 1.5px solid #ddd;
+      font-size: 15px; color: #1a1a2e; background: #fafafa; margin-bottom: 18px; outline: none;
     }
     .login-card input:focus { border-color: #e91e8c; }
-
     #login-btn {
       width: 100%; padding: 13px;
       background: linear-gradient(135deg, #e91e8c, #c2185b);
       color: #fff; border: none; border-radius: 8px;
       font-size: 16px; font-weight: 700; cursor: pointer;
-      transition: opacity .2s;
     }
-    #login-btn:hover { opacity: .9; }
-    #login-error {
-      color: #e53935; font-size: 13px;
-      margin-top: 12px; text-align: center;
-    }
+    #login-error { color: #e53935; font-size: 13px; margin-top: 12px; text-align: center; }
 
-    /* ── App shell ── */
+    /* APP */
     #app { display: none; flex-direction: column; min-height: 100vh; }
     #app.visible { display: flex; }
 
-    /* ── Header ── */
     header {
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
       color: #fff; padding: 0 28px;
@@ -77,298 +50,172 @@
       height: 64px; box-shadow: 0 2px 12px rgba(0,0,0,.3);
       position: sticky; top: 0; z-index: 100;
     }
-    header h1 { font-size: 20px; font-weight: 700; letter-spacing: .5px; }
+    header h1 { font-size: 20px; font-weight: 700; }
     header h1 span { color: #e91e8c; }
-
     #logout-btn {
       background: rgba(255,255,255,.12); color: #fff;
       border: 1px solid rgba(255,255,255,.25); border-radius: 8px;
       padding: 8px 18px; font-size: 14px; cursor: pointer;
-      transition: background .2s;
     }
     #logout-btn:hover { background: rgba(255,255,255,.22); }
 
-    /* ── Nav tabs ── */
     nav {
-      background: #ffffff;
-      border-bottom: 2px solid #eee;
-      display: flex; gap: 0; padding: 0 28px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      background: #fff; border-bottom: 2px solid #eee;
+      display: flex; padding: 0 28px;
     }
     nav button {
       background: none; border: none; cursor: pointer;
       padding: 16px 22px; font-size: 14px; font-weight: 600;
-      color: #888; border-bottom: 3px solid transparent;
-      margin-bottom: -2px; transition: color .2s, border-color .2s;
+      color: #888; border-bottom: 3px solid transparent; margin-bottom: -2px;
     }
     nav button:hover { color: #e91e8c; }
     nav button.active { color: #e91e8c; border-bottom-color: #e91e8c; }
 
-    /* ── Main content ── */
     main { flex: 1; padding: 28px; max-width: 1400px; margin: 0 auto; width: 100%; }
-
-    /* ── Sections ── */
     .section { display: none; }
     .section.active { display: block; }
 
-    /* ── KPI cards ── */
+    /* KPI */
     .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px; margin-bottom: 28px;
     }
     .kpi-card {
-      background: #fff; border-radius: 14px;
-      padding: 24px 22px;
-      box-shadow: 0 2px 12px rgba(0,0,0,.07);
-      border-left: 5px solid #e91e8c;
-      transition: transform .2s, box-shadow .2s;
+      background: #fff; border-radius: 14px; padding: 24px 22px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07); border-left: 5px solid #e91e8c;
     }
-    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
-    .kpi-card .kpi-label {
-      font-size: 12px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .8px; color: #888; margin-bottom: 10px;
-    }
-    .kpi-card .kpi-value {
-      font-size: 32px; font-weight: 800; color: #1a1a2e; line-height: 1;
-    }
-    .kpi-card .kpi-sub {
-      font-size: 12px; color: #aaa; margin-top: 6px;
-    }
+    .kpi-card.blue   { border-left-color: #2196f3; }
+    .kpi-card.green  { border-left-color: #4caf50; }
+    .kpi-card.orange { border-left-color: #ff9800; }
+    .kpi-card.purple { border-left-color: #9c27b0; }
+    .kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #888; margin-bottom: 10px; }
+    .kpi-value { font-size: 32px; font-weight: 800; color: #1a1a2e; line-height: 1; }
+    .kpi-sub   { font-size: 12px; color: #aaa; margin-top: 6px; }
 
-    /* ── Accent colors for KPI cards ── */
-    .kpi-card.pink  { border-left-color: #e91e8c; }
-    .kpi-card.blue  { border-left-color: #2196f3; }
-    .kpi-card.green { border-left-color: #4caf50; }
-    .kpi-card.orange{ border-left-color: #ff9800; }
-    .kpi-card.purple{ border-left-color: #9c27b0; }
+    .section-title { font-size: 18px; font-weight: 700; color: #1a1a2e; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; }
 
-    /* ── Section title ── */
-    .section-title {
-      font-size: 18px; font-weight: 700; color: #1a1a2e;
-      margin-bottom: 18px; padding-bottom: 10px;
-      border-bottom: 2px solid #f0f0f0;
-    }
-
-    /* ── Toolbar ── */
-    .toolbar {
-      display: flex; gap: 12px; flex-wrap: wrap;
-      align-items: center; margin-bottom: 18px;
-    }
+    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
     .toolbar input, .toolbar select {
-      padding: 9px 14px; border-radius: 8px;
-      border: 1.5px solid #ddd; font-size: 14px;
-      color: #1a1a2e; background: #fff; outline: none;
-      transition: border-color .2s;
+      padding: 9px 14px; border-radius: 8px; border: 1.5px solid #ddd;
+      font-size: 14px; color: #1a1a2e; background: #fff; outline: none;
     }
     .toolbar input:focus, .toolbar select:focus { border-color: #e91e8c; }
     .toolbar input[type="text"] { flex: 1; min-width: 200px; }
 
-    .btn {
-      padding: 9px 18px; border-radius: 8px;
-      border: none; cursor: pointer; font-size: 14px;
-      font-weight: 600; transition: opacity .2s, transform .15s;
-    }
-    .btn:hover { opacity: .88; transform: translateY(-1px); }
-    .btn-primary { background: #e91e8c; color: #fff; }
+    .btn { padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; }
+    .btn-primary   { background: #e91e8c; color: #fff; }
     .btn-secondary { background: #f0f0f0; color: #333; }
-    .btn-danger { background: #e53935; color: #fff; }
-    .btn-success { background: #4caf50; color: #fff; }
+    .btn-danger    { background: #e53935; color: #fff; }
     .btn-sm { padding: 5px 12px; font-size: 12px; }
 
-    /* ── Table ── */
-    .table-wrap {
-      background: #fff; border-radius: 14px;
-      box-shadow: 0 2px 12px rgba(0,0,0,.07); overflow: hidden;
-    }
+    .table-wrap { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.07); overflow: hidden; }
     table { width: 100%; border-collapse: collapse; }
     thead { background: #1a1a2e; }
-    thead th {
-      color: #fff; font-size: 12px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .7px;
-      padding: 14px 16px; text-align: left;
-    }
-    tbody tr { border-bottom: 1px solid #f0f0f0; transition: background .15s; }
+    thead th { color: #fff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; padding: 14px 16px; text-align: left; }
+    tbody tr { border-bottom: 1px solid #f0f0f0; }
     tbody tr:hover { background: #fdf0f7; }
     tbody tr:last-child { border-bottom: none; }
     tbody td { padding: 13px 16px; font-size: 14px; color: #333; }
 
-    /* ── Badges ── */
-    .badge {
-      display: inline-block; padding: 3px 10px;
-      border-radius: 20px; font-size: 11px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .5px;
-    }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
     .badge-pendiente  { background: #fff3e0; color: #e65100; }
-    .badge-confirmado { background: #e8f5e9; color: #2e7d32; }
-    .badge-cancelado  { background: #ffebee; color: #c62828; }
-    .badge-completado { background: #e3f2fd; color: #1565c0; }
+    .badge-confirmada { background: #e8f5e9; color: #2e7d32; }
+    .badge-cancelada  { background: #ffebee; color: #c62828; }
+    .badge-completada { background: #e3f2fd; color: #1565c0; }
 
-    /* ── Pagination ── */
-    .pagination {
-      display: flex; align-items: center; justify-content: center;
-      gap: 8px; padding: 18px;
-      background: #fff; border-top: 1px solid #f0f0f0;
-    }
-    .pagination button {
-      width: 34px; height: 34px; border-radius: 8px;
-      border: 1.5px solid #ddd; background: #fff;
-      font-size: 14px; cursor: pointer; color: #333;
-      transition: background .15s, color .15s, border-color .15s;
-    }
-    .pagination button.active,
-    .pagination button:hover { background: #e91e8c; color: #fff; border-color: #e91e8c; }
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 18px; background: #fff; border-top: 1px solid #f0f0f0; }
+    .pagination button { width: 34px; height: 34px; border-radius: 8px; border: 1.5px solid #ddd; background: #fff; font-size: 14px; cursor: pointer; color: #333; }
+    .pagination button.active, .pagination button:hover { background: #e91e8c; color: #fff; border-color: #e91e8c; }
     .pagination span { font-size: 13px; color: #888; }
 
-    /* ── Modal ── */
-    .modal-backdrop {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.55); backdrop-filter: blur(3px);
-      z-index: 500; display: flex; align-items: center; justify-content: center;
-    }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 500; display: flex; align-items: center; justify-content: center; }
     .modal-backdrop.hidden { display: none; }
-    .modal {
-      background: #fff; border-radius: 16px;
-      padding: 32px; width: 100%; max-width: 520px;
-      box-shadow: 0 24px 64px rgba(0,0,0,.35);
-      max-height: 90vh; overflow-y: auto;
-    }
+    .modal { background: #fff; border-radius: 16px; padding: 32px; width: 100%; max-width: 500px; box-shadow: 0 24px 64px rgba(0,0,0,.35); max-height: 90vh; overflow-y: auto; }
     .modal h2 { font-size: 20px; color: #1a1a2e; margin-bottom: 22px; }
     .form-row { margin-bottom: 16px; }
-    .form-row label {
-      display: block; font-size: 13px; font-weight: 600;
-      color: #444; margin-bottom: 6px;
-    }
+    .form-row label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
     .form-row input, .form-row select, .form-row textarea {
-      width: 100%; padding: 10px 13px;
-      border: 1.5px solid #ddd; border-radius: 8px;
-      font-size: 14px; color: #1a1a2e; background: #fafafa;
-      outline: none; transition: border-color .2s;
-      font-family: inherit;
+      width: 100%; padding: 10px 13px; border: 1.5px solid #ddd; border-radius: 8px;
+      font-size: 14px; color: #1a1a2e; background: #fafafa; outline: none; font-family: inherit;
     }
-    .form-row input:focus,
-    .form-row select:focus,
-    .form-row textarea:focus { border-color: #e91e8c; }
-    .form-row textarea { resize: vertical; min-height: 80px; }
-    .modal-actions {
-      display: flex; gap: 12px; justify-content: flex-end;
-      margin-top: 24px;
-    }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: #e91e8c; }
+    .form-row textarea { resize: vertical; min-height: 70px; }
+    .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
 
-    /* ── Loading spinner ── */
-    .spinner {
-      text-align: center; padding: 48px;
-      font-size: 15px; color: #888;
-    }
-    .spinner::before {
-      content: '';
-      display: inline-block; width: 32px; height: 32px;
-      border: 3px solid #eee; border-top-color: #e91e8c;
-      border-radius: 50%; animation: spin .7s linear infinite;
-      margin-bottom: 12px; display: block; margin: 0 auto 14px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty { text-align: center; color: #aaa; padding: 40px; font-size: 14px; }
 
-    /* ── Toast ── */
     #toast {
       position: fixed; bottom: 28px; right: 28px;
-      background: #1a1a2e; color: #fff;
-      padding: 14px 22px; border-radius: 10px;
-      font-size: 14px; font-weight: 500;
-      box-shadow: 0 8px 28px rgba(0,0,0,.3);
-      transform: translateY(80px); opacity: 0;
-      transition: transform .3s, opacity .3s;
-      z-index: 9000; max-width: 320px;
+      background: #1a1a2e; color: #fff; padding: 14px 22px; border-radius: 10px;
+      font-size: 14px; font-weight: 500; box-shadow: 0 8px 28px rgba(0,0,0,.3);
+      transform: translateY(80px); opacity: 0; transition: transform .3s, opacity .3s; z-index: 9000;
     }
     #toast.show { transform: translateY(0); opacity: 1; }
     #toast.success { border-left: 4px solid #4caf50; }
     #toast.error   { border-left: 4px solid #e53935; }
-
-    /* ── Responsive ── */
-    @media (max-width: 640px) {
-      main { padding: 16px; }
-      header { padding: 0 16px; }
-      nav { padding: 0 8px; overflow-x: auto; }
-      nav button { padding: 14px 14px; font-size: 13px; }
-      .kpi-grid { grid-template-columns: 1fr 1fr; }
-    }
   </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login-overlay">
   <div class="login-card">
     <h1>💄 Sallon Bella</h1>
     <p>Panel de administración</p>
     <label>Email</label>
-    <input type="email" id="email" value="edgardochapot@hotmail.com" autocomplete="username" />
+    <input type="email" id="email" value="edgardochapot@hotmail.com" />
     <label>Contraseña</label>
-    <input type="password" id="password" value="35132106" autocomplete="current-password" />
+    <input type="password" id="password" value="35132106" />
     <button id="login-btn">Ingresar</button>
     <div id="login-error"></div>
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
   <header>
     <h1>💄 Sallon <span>Bella</span> — Admin</h1>
     <button id="logout-btn">Cerrar sesión</button>
   </header>
-
   <nav>
     <button class="active" data-tab="dashboard">📊 Dashboard</button>
-    <button data-tab="reservas">📅 Reservas</button>
+    <button data-tab="citas">📅 Citas</button>
     <button data-tab="clientes">👩 Clientes</button>
     <button data-tab="servicios">✂️ Servicios</button>
-    <button data-tab="profesionales">💅 Profesionales</button>
+    <button data-tab="bloqueados">🚫 Días bloqueados</button>
   </nav>
-
   <main>
 
-    <!-- DASHBOARD -->
     <div id="tab-dashboard" class="section active">
-      <div class="kpi-grid" id="kpi-grid">
-        <div class="spinner">Cargando métricas…</div>
-      </div>
-      <div class="section-title">Reservas recientes</div>
-      <div class="table-wrap" id="recent-table">
-        <div class="spinner">Cargando…</div>
-      </div>
+      <div class="kpi-grid" id="kpi-grid"><div class="empty">Cargando…</div></div>
+      <div class="section-title">Citas recientes</div>
+      <div class="table-wrap" id="recent-wrap"><div class="empty">Cargando…</div></div>
     </div>
 
-    <!-- RESERVAS -->
-    <div id="tab-reservas" class="section">
-      <div class="section-title">Gestión de Reservas</div>
+    <div id="tab-citas" class="section">
+      <div class="section-title">Gestión de Citas</div>
       <div class="toolbar">
-        <input type="text" id="res-search" placeholder="Buscar por cliente o servicio…" />
-        <select id="res-filter-estado">
+        <input type="text" id="cita-search" placeholder="Buscar por cliente o servicio…" />
+        <select id="cita-filter-estado">
           <option value="">Todos los estados</option>
           <option value="pendiente">Pendiente</option>
-          <option value="confirmado">Confirmado</option>
-          <option value="completado">Completado</option>
-          <option value="cancelado">Cancelado</option>
+          <option value="confirmada">Confirmada</option>
+          <option value="completada">Completada</option>
+          <option value="cancelada">Cancelada</option>
         </select>
-        <input type="date" id="res-filter-fecha" />
-        <button class="btn btn-primary" id="btn-nueva-reserva">+ Nueva reserva</button>
+        <input type="date" id="cita-filter-fecha" />
+        <button class="btn btn-primary" id="btn-nueva-cita">+ Nueva cita</button>
       </div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>#</th><th>Cliente</th><th>Servicio</th>
-              <th>Profesional</th><th>Fecha</th><th>Hora</th>
-              <th>Estado</th><th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="tba"></tbody>
+          <thead><tr>
+            <th>Cliente</th><th>Teléfono</th><th>Servicio</th>
+            <th>Fecha y hora</th><th>Estado</th><th>Canal</th><th>Acciones</th>
+          </tr></thead>
+          <tbody id="tb-citas"></tbody>
         </table>
-        <div class="pagination" id="res-pagination"></div>
+        <div class="pagination" id="citas-pag"></div>
       </div>
     </div>
 
-    <!-- CLIENTES -->
     <div id="tab-clientes" class="section">
       <div class="section-title">Clientes</div>
       <div class="toolbar">
@@ -377,18 +224,12 @@
       </div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Nombre</th><th>Email</th><th>Teléfono</th>
-              <th>Reservas</th><th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="tbc"></tbody>
+          <thead><tr><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Citas</th><th>Acciones</th></tr></thead>
+          <tbody id="tb-clientes"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- SERVICIOS -->
     <div id="tab-servicios" class="section">
       <div class="section-title">Servicios</div>
       <div class="toolbar">
@@ -396,32 +237,21 @@
       </div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Servicio</th><th>Categoría</th><th>Duración</th>
-              <th>Precio</th><th>Activo</th><th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="tbs"></tbody>
+          <thead><tr><th>Nombre</th><th>Duración</th><th>Precio</th><th>Activo</th><th>Acciones</th></tr></thead>
+          <tbody id="tb-servicios"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- PROFESIONALES -->
-    <div id="tab-profesionales" class="section">
-      <div class="section-title">Profesionales</div>
+    <div id="tab-bloqueados" class="section">
+      <div class="section-title">Días Bloqueados</div>
       <div class="toolbar">
-        <button class="btn btn-primary" id="btn-nuevo-prof">+ Nueva profesional</button>
+        <button class="btn btn-primary" id="btn-nuevo-bloqueo">+ Bloquear día</button>
       </div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Nombre</th><th>Especialidad</th><th>Email</th>
-              <th>Teléfono</th><th>Activo</th><th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="tbp"></tbody>
+          <thead><tr><th>Fecha</th><th>Motivo</th><th>Activo</th><th>Acciones</th></tr></thead>
+          <tbody id="tb-bloqueados"></tbody>
         </table>
       </div>
     </div>
@@ -429,191 +259,114 @@
   </main>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
-<!-- MODAL RESERVA -->
-<div id="modal-reserva" class="modal-backdrop hidden">
+<div id="modal-cita" class="modal-backdrop hidden">
   <div class="modal">
-    <h2 id="modal-reserva-title">Nueva Reserva</h2>
-    <input type="hidden" id="res-id" />
-    <div class="form-row">
-      <label>Cliente</label>
-      <select id="res-cliente"></select>
-    </div>
-    <div class="form-row">
-      <label>Servicio</label>
-      <select id="res-servicio"></select>
-    </div>
-    <div class="form-row">
-      <label>Profesional</label>
-      <select id="res-profesional"></select>
-    </div>
-    <div class="form-row">
-      <label>Fecha</label>
-      <input type="date" id="res-fecha" />
-    </div>
-    <div class="form-row">
-      <label>Hora</label>
-      <input type="time" id="res-hora" />
-    </div>
-    <div class="form-row">
-      <label>Estado</label>
-      <select id="res-estado">
+    <h2 id="modal-cita-title">Nueva Cita</h2>
+    <input type="hidden" id="cita-id" />
+    <div class="form-row"><label>Cliente</label><select id="cita-cliente"></select></div>
+    <div class="form-row"><label>Servicio</label><select id="cita-servicio"></select></div>
+    <div class="form-row"><label>Fecha y hora</label><input type="datetime-local" id="cita-fechahora" /></div>
+    <div class="form-row"><label>Estado</label>
+      <select id="cita-estado">
         <option value="pendiente">Pendiente</option>
-        <option value="confirmado">Confirmado</option>
-        <option value="completado">Completado</option>
-        <option value="cancelado">Cancelado</option>
+        <option value="confirmada">Confirmada</option>
+        <option value="completada">Completada</option>
+        <option value="cancelada">Cancelada</option>
       </select>
     </div>
-    <div class="form-row">
-      <label>Notas</label>
-      <textarea id="res-notas" rows="3"></textarea>
+    <div class="form-row"><label>Canal</label>
+      <select id="cita-canal">
+        <option value="web">Web</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="telefono">Teléfono</option>
+        <option value="presencial">Presencial</option>
+      </select>
     </div>
+    <div class="form-row"><label>Notas</label><textarea id="cita-notas"></textarea></div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" id="modal-reserva-cancel">Cancelar</button>
-      <button class="btn btn-primary" id="modal-reserva-save">Guardar</button>
+      <button class="btn btn-secondary" id="modal-cita-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-cita-save">Guardar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL CLIENTE -->
 <div id="modal-cliente" class="modal-backdrop hidden">
   <div class="modal">
-    <h2 id="modal-cliente-title">Nuevo Cliente</h2>
+    <h2 id="modal-cli-title">Nuevo Cliente</h2>
     <input type="hidden" id="cli-id" />
-    <div class="form-row">
-      <label>Nombre</label>
-      <input type="text" id="cli-nombre" />
-    </div>
-    <div class="form-row">
-      <label>Apellido</label>
-      <input type="text" id="cli-apellido" />
-    </div>
-    <div class="form-row">
-      <label>Email</label>
-      <input type="email" id="cli-email" />
-    </div>
-    <div class="form-row">
-      <label>Teléfono</label>
-      <input type="tel" id="cli-telefono" />
-    </div>
+    <div class="form-row"><label>Nombre completo</label><input type="text" id="cli-nombre" /></div>
+    <div class="form-row"><label>Teléfono</label><input type="tel" id="cli-telefono" /></div>
+    <div class="form-row"><label>Email</label><input type="email" id="cli-email" /></div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" id="modal-cliente-cancel">Cancelar</button>
-      <button class="btn btn-primary" id="modal-cliente-save">Guardar</button>
+      <button class="btn btn-secondary" id="modal-cli-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-cli-save">Guardar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL SERVICIO -->
 <div id="modal-servicio" class="modal-backdrop hidden">
   <div class="modal">
-    <h2 id="modal-servicio-title">Nuevo Servicio</h2>
+    <h2 id="modal-svc-title">Nuevo Servicio</h2>
     <input type="hidden" id="svc-id" />
-    <div class="form-row">
-      <label>Nombre</label>
-      <input type="text" id="svc-nombre" />
-    </div>
-    <div class="form-row">
-      <label>Categoría</label>
-      <input type="text" id="svc-categoria" />
-    </div>
-    <div class="form-row">
-      <label>Duración (minutos)</label>
-      <input type="number" id="svc-duracion" min="5" step="5" />
-    </div>
-    <div class="form-row">
-      <label>Precio ($)</label>
-      <input type="number" id="svc-precio" min="0" step="0.01" />
-    </div>
-    <div class="form-row">
-      <label>Descripción</label>
-      <textarea id="svc-descripcion"></textarea>
+    <div class="form-row"><label>Nombre</label><input type="text" id="svc-nombre" /></div>
+    <div class="form-row"><label>Descripción</label><textarea id="svc-descripcion"></textarea></div>
+    <div class="form-row"><label>Duración (minutos)</label><input type="number" id="svc-duracion" min="5" step="5" /></div>
+    <div class="form-row"><label>Precio ($)</label><input type="number" id="svc-precio" min="0" step="0.01" /></div>
+    <div class="form-row"><label>Activo</label>
+      <select id="svc-activo"><option value="true">Sí</option><option value="false">No</option></select>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" id="modal-servicio-cancel">Cancelar</button>
-      <button class="btn btn-primary" id="modal-servicio-save">Guardar</button>
+      <button class="btn btn-secondary" id="modal-svc-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-svc-save">Guardar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL PROFESIONAL -->
-<div id="modal-prof" class="modal-backdrop hidden">
+<div id="modal-bloqueo" class="modal-backdrop hidden">
   <div class="modal">
-    <h2 id="modal-prof-title">Nueva Profesional</h2>
-    <input type="hidden" id="prof-id" />
-    <div class="form-row">
-      <label>Nombre</label>
-      <input type="text" id="prof-nombre" />
-    </div>
-    <div class="form-row">
-      <label>Apellido</label>
-      <input type="text" id="prof-apellido" />
-    </div>
-    <div class="form-row">
-      <label>Especialidad</label>
-      <input type="text" id="prof-especialidad" />
-    </div>
-    <div class="form-row">
-      <label>Email</label>
-      <input type="email" id="prof-email" />
-    </div>
-    <div class="form-row">
-      <label>Teléfono</label>
-      <input type="tel" id="prof-telefono" />
-    </div>
+    <h2 id="modal-blq-title">Bloquear Día</h2>
+    <input type="hidden" id="blq-id" />
+    <div class="form-row"><label>Fecha</label><input type="date" id="blq-fecha" /></div>
+    <div class="form-row"><label>Motivo</label><input type="text" id="blq-motivo" /></div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" id="modal-prof-cancel">Cancelar</button>
-      <button class="btn btn-primary" id="modal-prof-save">Guardar</button>
+      <button class="btn btn-secondary" id="modal-blq-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-blq-save">Guardar</button>
     </div>
   </div>
 </div>
 
 <script>
-/* ─────────────────────────────
-   SUPABASE
-───────────────────────────── */
 const SUPA_URL = 'https://glczaecmkniqdmqkvfxc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsY3phZWNta25pcWRtcWt2ZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1OTEyNDcsImV4cCI6MjA5MzE2NzI0N30.2i8E4KX_ocyca-yRT_4fG6y85dpH3J-0f6gOsmn-O2c';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-/* ─────────────────────────────
-   UTILS
-───────────────────────────── */
 const $ = id => document.getElementById(id);
-const toast = (msg, type = 'success') => {
-  const t = $('toast');
-  t.textContent = msg;
-  t.className = `show ${type}`;
-  setTimeout(() => { t.className = ''; }, 3200);
+const toast = (msg, type='success') => {
+  const t=$('toast'); t.textContent=msg; t.className=`show ${type}`;
+  setTimeout(()=>t.className='',3200);
 };
-const fmt = {
-  date: d => d ? new Date(d + 'T00:00:00').toLocaleDateString('es-AR') : '—',
-  money: n => n != null ? `$${Number(n).toLocaleString('es-AR', {minimumFractionDigits:0})}` : '—',
-  badge: s => {
-    const map = { pendiente:'badge-pendiente', confirmado:'badge-confirmado',
-                  cancelado:'badge-cancelado', completado:'badge-completado' };
-    return `<span class="badge ${map[s]||''}">${s||'—'}</span>`;
-  }
+const fmtDT = ts => {
+  if(!ts) return '—';
+  const d=new Date(ts);
+  return d.toLocaleDateString('es-AR')+' '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+};
+const fmtMoney = n => n!=null ? '$'+Number(n).toLocaleString('es-AR') : '—';
+const badge = s => {
+  const cls={pendiente:'badge-pendiente',confirmada:'badge-confirmada',cancelada:'badge-cancelada',completada:'badge-completada'};
+  return `<span class="badge ${cls[s]||''}">${s||'—'}</span>`;
 };
 
-/* ─────────────────────────────
-   LOGIN
-───────────────────────────── */
+/* AUTH */
 $('login-btn').onclick = async () => {
-  const email = $('email').value.trim();
-  const pass  = $('password').value;
-  $('login-error').textContent = '';
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if (error) { $('login-error').textContent = error.message; }
+  $('login-error').textContent='';
+  const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+  if(error) $('login-error').textContent=error.message;
 };
-
-$('logout-btn').onclick = async () => {
-  await sb.auth.signOut();
-};
-
-sb.auth.onAuthStateChange((event, session) => {
-  if (session) {
+$('logout-btn').onclick = ()=>sb.auth.signOut();
+sb.auth.onAuthStateChange((_,session)=>{
+  if(session){
     $('login-overlay').classList.add('hidden');
     $('app').classList.add('visible');
     initApp();
@@ -623,456 +376,250 @@ sb.auth.onAuthStateChange((event, session) => {
   }
 });
 
-/* ─────────────────────────────
-   TABS
-───────────────────────────── */
-document.querySelectorAll('nav button').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+/* TABS */
+document.querySelectorAll('nav button').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
     btn.classList.add('active');
-    $('tab-' + btn.dataset.tab).classList.add('active');
+    $('tab-'+btn.dataset.tab).classList.add('active');
   };
 });
 
-/* ─────────────────────────────
-   STATE
-───────────────────────────── */
-let allReservas = [], allClientes = [], allServicios = [], allProfesionales = [];
-let resPage = 1; const resPerPage = 15;
+/* STATE */
+let allCitas=[], allClientes=[], allServicios=[], allBloqueados=[];
+let citaPage=1; const PER=20;
 
-/* ─────────────────────────────
-   INIT
-───────────────────────────── */
-async function initApp() {
-  await Promise.all([
-    loadDashboard(),
-    loadReservas(),
-    loadClientes(),
-    loadServicios(),
-    loadProfesionales()
-  ]);
+async function initApp(){
+  await Promise.all([loadClientes(),loadServicios(),loadCitas(),loadBloqueados()]);
+  buildDashboard();
 }
 
-/* ─────────────────────────────
-   DASHBOARD
-───────────────────────────── */
-async function loadDashboard() {
-  // Try vista_metricas first
-  let metricas = null;
-  const { data: vm } = await sb.from('vista_metricas').select('*').maybeSingle();
-  if (vm) metricas = vm;
+/* DASHBOARD — calculado desde datos ya cargados */
+function buildDashboard(){
+  const hoy=new Date().toDateString();
+  const citasHoy    = allCitas.filter(c=>new Date(c.fecha_hora).toDateString()===hoy).length;
+  const pendientes  = allCitas.filter(c=>c.estado==='pendiente').length;
+  const confirmadas = allCitas.filter(c=>c.estado==='confirmada').length;
+  const now=new Date();
+  const ingresosMes = allCitas
+    .filter(c=>{const d=new Date(c.fecha_hora);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()&&(c.estado==='completada'||c.estado==='confirmada');})
+    .reduce((s,c)=>s+(Number(c.precio_cobrado)||0),0);
 
-  // Fallback: compute from tables
-  const { count: totalRes } = await sb.from('reservas').select('*', { count:'exact', head:true });
-  const { count: pendCount } = await sb.from('reservas').select('*', { count:'exact', head:true }).eq('estado','pendiente');
-  const { count: cliCount } = await sb.from('clientes').select('*', { count:'exact', head:true });
+  $('kpi-grid').innerHTML=[
+    {label:'Total citas',   value:allCitas.length,        sub:'acumuladas',   cls:''},
+    {label:'Hoy',           value:citasHoy,               sub:new Date().toLocaleDateString('es-AR'), cls:'blue'},
+    {label:'Pendientes',    value:pendientes,              sub:'sin confirmar', cls:'orange'},
+    {label:'Confirmadas',   value:confirmadas,             sub:'activas',      cls:'green'},
+    {label:'Ingresos mes',  value:fmtMoney(ingresosMes),  sub:'mes actual',   cls:'purple'},
+    {label:'Clientes',      value:allClientes.length,      sub:'registrados',  cls:'blue'},
+  ].map(k=>`<div class="kpi-card ${k.cls}"><div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
 
-  const kpis = [
-    { label:'Total Reservas', value: metricas?.total_reservas ?? totalRes ?? 0, sub:'acumuladas', cls:'pink' },
-    { label:'Pendientes', value: metricas?.reservas_pendientes ?? pendCount ?? 0, sub:'sin confirmar', cls:'orange' },
-    { label:'Clientes', value: metricas?.total_clientes ?? cliCount ?? 0, sub:'registrados', cls:'blue' },
-    { label:'Ingresos del mes', value: fmt.money(metricas?.ingresos_mes ?? null), sub:'mes actual', cls:'green' },
-    { label:'Reservas hoy', value: metricas?.reservas_hoy ?? '—', sub: new Date().toLocaleDateString('es-AR'), cls:'purple' },
-  ];
-
-  $('kpi-grid').innerHTML = kpis.map(k => `
-    <div class="kpi-card ${k.cls}">
-      <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value">${k.value}</div>
-      <div class="kpi-sub">${k.sub}</div>
-    </div>`).join('');
-
-  // Recent reservas
-  const { data: recent } = await sb
-    .from('reservas')
-    .select('*, clientes(nombre,apellido), servicios(nombre), profesionales(nombre)')
-    .order('created_at', { ascending: false })
-    .limit(8);
-
-  if (!recent?.length) {
-    $('recent-table').innerHTML = '<div class="spinner">Sin datos</div>';
-    return;
-  }
-  $('recent-table').innerHTML = `
-    <table><thead><tr>
-      <th>Cliente</th><th>Servicio</th><th>Fecha</th><th>Estado</th>
-    </tr></thead><tbody>
-    ${recent.map(r => `<tr>
-      <td>${r.clientes?.nombre||''} ${r.clientes?.apellido||''}</td>
-      <td>${r.servicios?.nombre||r.servicio_nombre||'—'}</td>
-      <td>${fmt.date(r.fecha)}</td>
-      <td>${fmt.badge(r.estado)}</td>
-    </tr>`).join('')}
-    </tbody></table>`;
+  const rec=[...allCitas].sort((a,b)=>new Date(b.fecha_hora)-new Date(a.fecha_hora)).slice(0,8);
+  $('recent-wrap').innerHTML=rec.length?`<table><thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha y hora</th><th>Estado</th></tr></thead><tbody>${
+    rec.map(c=>`<tr><td>${cliNombre(c.cliente_id)}</td><td>${svcNombre(c.servicio_id)}</td><td>${fmtDT(c.fecha_hora)}</td><td>${badge(c.estado)}</td></tr>`).join('')
+  }</tbody></table>`:'<div class="empty">Sin citas registradas</div>';
 }
 
-/* ─────────────────────────────
-   RESERVAS
-───────────────────────────── */
-async function loadReservas() {
-  const { data, error } = await sb
-    .from('reservas')
-    .select('*, clientes(nombre,apellido), servicios(nombre), profesionales(nombre)')
-    .order('fecha', { ascending: false });
-  if (error) { toast(error.message, 'error'); return; }
-  allReservas = data || [];
-  renderReservas();
-}
+const cliNombre = id=>allClientes.find(c=>c.id===id)?.nombre_completo||'—';
+const svcNombre = id=>allServicios.find(s=>s.id===id)?.nombre||'—';
 
-function filterReservas() {
-  const q = $('res-search').value.toLowerCase();
-  const est = $('res-filter-estado').value;
-  const fecha = $('res-filter-fecha').value;
-  return allReservas.filter(r => {
-    const nombre = `${r.clientes?.nombre||''} ${r.clientes?.apellido||''} ${r.servicios?.nombre||''}`.toLowerCase();
-    return (!q || nombre.includes(q))
-      && (!est || r.estado === est)
-      && (!fecha || r.fecha === fecha);
+/* CITAS */
+async function loadCitas(){
+  const{data,error}=await sb.from('citas').select('*').order('fecha_hora',{ascending:false});
+  if(error){toast(error.message,'error');return;}
+  allCitas=data||[];
+  renderCitas();
+}
+function filteredCitas(){
+  const q=$('cita-search').value.toLowerCase();
+  const est=$('cita-filter-estado').value;
+  const fecha=$('cita-filter-fecha').value;
+  return allCitas.filter(c=>{
+    const txt=`${cliNombre(c.cliente_id)} ${svcNombre(c.servicio_id)}`.toLowerCase();
+    const dm=!fecha||new Date(c.fecha_hora).toISOString().slice(0,10)===fecha;
+    return(!q||txt.includes(q))&&(!est||c.estado===est)&&dm;
   });
 }
-
-function renderReservas() {
-  const filtered = filterReservas();
-  const total = filtered.length;
-  const pages = Math.ceil(total / resPerPage) || 1;
-  resPage = Math.min(resPage, pages);
-  const slice = filtered.slice((resPage-1)*resPerPage, resPage*resPerPage);
-
-  $('tba').innerHTML = slice.length ? slice.map(r => `
-    <tr>
-      <td>${r.id?.toString().slice(-6) || '—'}</td>
-      <td>${r.clientes?.nombre||''} ${r.clientes?.apellido||''}</td>
-      <td>${r.servicios?.nombre || r.servicio_nombre || '—'}</td>
-      <td>${r.profesionales?.nombre || r.profesional_nombre || '—'}</td>
-      <td>${fmt.date(r.fecha)}</td>
-      <td>${r.hora_inicio || r.hora || '—'}</td>
-      <td>${fmt.badge(r.estado)}</td>
-      <td>
-        <button class="btn btn-secondary btn-sm" onclick="editReserva('${r.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteReserva('${r.id}')">🗑️</button>
-      </td>
-    </tr>`).join('')
-    : '<tr><td colspan="8" style="text-align:center;color:#aaa;padding:32px">Sin resultados</td></tr>';
-
-  // Pagination
-  let pag = '';
-  if (pages > 1) {
-    pag += `<span>Página ${resPage} de ${pages} (${total} registros)</span>`;
-    for (let i = 1; i <= pages; i++) {
-      pag += `<button class="${i===resPage?'active':''}" onclick="goResPage(${i})">${i}</button>`;
-    }
-  }
-  $('res-pagination').innerHTML = pag;
+function renderCitas(){
+  const list=filteredCitas();
+  const pages=Math.ceil(list.length/PER)||1;
+  citaPage=Math.min(citaPage,pages);
+  const sl=list.slice((citaPage-1)*PER,citaPage*PER);
+  $('tb-citas').innerHTML=sl.length?sl.map(c=>`<tr>
+    <td>${cliNombre(c.cliente_id)}</td><td>${c.telefono||'—'}</td><td>${svcNombre(c.servicio_id)}</td>
+    <td>${fmtDT(c.fecha_hora)}</td><td>${badge(c.estado)}</td><td>${c.medio_reserva||'—'}</td>
+    <td><button class="btn btn-secondary btn-sm" onclick="editCita('${c.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCita('${c.id}')">🗑️</button></td>
+  </tr>`).join(''):'<tr><td colspan="7" class="empty">Sin resultados</td></tr>';
+  let pag='';
+  if(pages>1){pag+=`<span>${list.length} registros</span>`;for(let i=1;i<=pages;i++)pag+=`<button class="${i===citaPage?'active':''}" onclick="goCitaPage(${i})">${i}</button>`;}
+  $('citas-pag').innerHTML=pag;
 }
+window.goCitaPage=p=>{citaPage=p;renderCitas();};
+$('cita-search').oninput=()=>{citaPage=1;renderCitas();};
+$('cita-filter-estado').onchange=()=>{citaPage=1;renderCitas();};
+$('cita-filter-fecha').onchange=()=>{citaPage=1;renderCitas();};
 
-window.goResPage = p => { resPage = p; renderReservas(); };
-
-$('res-search').oninput = () => { resPage=1; renderReservas(); };
-$('res-filter-estado').onchange = () => { resPage=1; renderReservas(); };
-$('res-filter-fecha').onchange = () => { resPage=1; renderReservas(); };
-
-/* CRUD Reservas */
-$('btn-nueva-reserva').onclick = () => openReservaModal();
-
-async function openReservaModal(id) {
-  await populateSelects();
-  $('modal-reserva-title').textContent = id ? 'Editar Reserva' : 'Nueva Reserva';
-  $('res-id').value = id || '';
-  if (id) {
-    const r = allReservas.find(x => x.id == id);
-    if (r) {
-      $('res-cliente').value    = r.cliente_id || '';
-      $('res-servicio').value   = r.servicio_id || '';
-      $('res-profesional').value= r.profesional_id || '';
-      $('res-fecha').value      = r.fecha || '';
-      $('res-hora').value       = r.hora_inicio || r.hora || '';
-      $('res-estado').value     = r.estado || 'pendiente';
-      $('res-notas').value      = r.notas || '';
+$('btn-nueva-cita').onclick=()=>openCitaModal();
+window.editCita=id=>openCitaModal(id);
+window.deleteCita=async id=>{
+  if(!confirm('¿Eliminar esta cita?'))return;
+  const{error}=await sb.from('citas').delete().eq('id',id);
+  if(error)toast(error.message,'error');
+  else{toast('Cita eliminada');await loadCitas();buildDashboard();}
+};
+function openCitaModal(id){
+  $('cita-cliente').innerHTML='<option value="">— Cliente —</option>'+allClientes.map(c=>`<option value="${c.id}">${c.nombre_completo}</option>`).join('');
+  $('cita-servicio').innerHTML='<option value="">— Servicio —</option>'+allServicios.map(s=>`<option value="${s.id}">${s.nombre}</option>`).join('');
+  $('modal-cita-title').textContent=id?'Editar Cita':'Nueva Cita';
+  $('cita-id').value=id||'';
+  if(id){
+    const c=allCitas.find(x=>x.id===id);
+    if(c){
+      $('cita-cliente').value=c.cliente_id||'';
+      $('cita-servicio').value=c.servicio_id||'';
+      $('cita-fechahora').value=c.fecha_hora?c.fecha_hora.slice(0,16):'';
+      $('cita-estado').value=c.estado||'pendiente';
+      $('cita-canal').value=c.medio_reserva||'web';
+      $('cita-notas').value=c.notas||'';
     }
   } else {
-    ['res-cliente','res-servicio','res-profesional','res-fecha','res-hora','res-notas']
-      .forEach(id => document.getElementById(id).value = '');
-    $('res-estado').value = 'pendiente';
+    ['cita-cliente','cita-servicio','cita-notas'].forEach(i=>$(i).value='');
+    $('cita-fechahora').value='';$('cita-estado').value='pendiente';$('cita-canal').value='web';
   }
-  $('modal-reserva').classList.remove('hidden');
+  $('modal-cita').classList.remove('hidden');
 }
-
-window.editReserva   = id => openReservaModal(id);
-window.deleteReserva = async id => {
-  if (!confirm('¿Eliminar esta reserva?')) return;
-  const { error } = await sb.from('reservas').delete().eq('id', id);
-  if (error) toast(error.message, 'error');
-  else { toast('Reserva eliminada'); await loadReservas(); await loadDashboard(); }
+$('modal-cita-cancel').onclick=()=>$('modal-cita').classList.add('hidden');
+$('modal-cita-save').onclick=async()=>{
+  const id=$('cita-id').value;
+  const p={cliente_id:$('cita-cliente').value||null,servicio_id:$('cita-servicio').value||null,
+    fecha_hora:$('cita-fechahora').value||null,estado:$('cita-estado').value,
+    medio_reserva:$('cita-canal').value,notas:$('cita-notas').value||null};
+  const{error}=id?await sb.from('citas').update(p).eq('id',id):await sb.from('citas').insert(p);
+  if(error)toast(error.message,'error');
+  else{toast(id?'Cita actualizada ✓':'Cita creada ✓');$('modal-cita').classList.add('hidden');await loadCitas();buildDashboard();}
 };
 
-$('modal-reserva-cancel').onclick = () => $('modal-reserva').classList.add('hidden');
-$('modal-reserva-save').onclick   = async () => {
-  const id = $('res-id').value;
-  const payload = {
-    cliente_id:     $('res-cliente').value || null,
-    servicio_id:    $('res-servicio').value || null,
-    profesional_id: $('res-profesional').value || null,
-    fecha:          $('res-fecha').value || null,
-    hora_inicio:    $('res-hora').value || null,
-    estado:         $('res-estado').value,
-    notas:          $('res-notas').value || null,
-  };
-  let error;
-  if (id) ({ error } = await sb.from('reservas').update(payload).eq('id', id));
-  else    ({ error } = await sb.from('reservas').insert(payload));
-  if (error) toast(error.message, 'error');
-  else {
-    toast(id ? 'Reserva actualizada ✓' : 'Reserva creada ✓');
-    $('modal-reserva').classList.add('hidden');
-    await loadReservas(); await loadDashboard();
-  }
+/* CLIENTES */
+async function loadClientes(){
+  const{data,error}=await sb.from('clientes').select('*').order('nombre_completo');
+  if(error){toast(error.message,'error');return;}
+  allClientes=data||[];renderClientes();
+}
+function renderClientes(){
+  const q=$('cli-search').value.toLowerCase();
+  const list=allClientes.filter(c=>`${c.nombre_completo} ${c.telefono||''} ${c.email||''}`.toLowerCase().includes(q));
+  $('tb-clientes').innerHTML=list.length?list.map(c=>`<tr>
+    <td>${c.nombre_completo}</td><td>${c.telefono||'—'}</td><td>${c.email||'—'}</td>
+    <td>${allCitas.filter(x=>x.cliente_id===c.id).length}</td>
+    <td><button class="btn btn-secondary btn-sm" onclick="editCliente('${c.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCliente('${c.id}')">🗑️</button></td>
+  </tr>`).join(''):'<tr><td colspan="5" class="empty">Sin resultados</td></tr>';
+}
+$('cli-search').oninput=renderClientes;
+$('btn-nuevo-cliente').onclick=()=>openClienteModal();
+window.editCliente=id=>openClienteModal(id);
+window.deleteCliente=async id=>{
+  if(!confirm('¿Eliminar este cliente?'))return;
+  const{error}=await sb.from('clientes').delete().eq('id',id);
+  if(error)toast(error.message,'error');else{toast('Cliente eliminado');await loadClientes();}
 };
-
-async function populateSelects() {
-  const opts = (arr, label) =>
-    arr.map(x => `<option value="${x.id}">${x[label]||x.nombre||x.id}</option>`).join('');
-
-  $('res-cliente').innerHTML    = '<option value="">— Cliente —</option>' +
-    allClientes.map(c => `<option value="${c.id}">${c.nombre} ${c.apellido||''}</option>`).join('');
-  $('res-servicio').innerHTML   = '<option value="">— Servicio —</option>' + opts(allServicios, 'nombre');
-  $('res-profesional').innerHTML= '<option value="">— Profesional —</option>' +
-    allProfesionales.map(p => `<option value="${p.id}">${p.nombre} ${p.apellido||''}</option>`).join('');
-}
-
-/* ─────────────────────────────
-   CLIENTES
-───────────────────────────── */
-async function loadClientes() {
-  const { data, error } = await sb.from('clientes').select('*').order('nombre');
-  if (error) { toast(error.message, 'error'); return; }
-  allClientes = data || [];
-  renderClientes();
-}
-
-function renderClientes() {
-  const q = $('cli-search').value.toLowerCase();
-  const list = allClientes.filter(c =>
-    `${c.nombre} ${c.apellido||''} ${c.email||''}`.toLowerCase().includes(q));
-  $('tbc').innerHTML = list.length ? list.map(c => `
-    <tr>
-      <td>${c.nombre} ${c.apellido||''}</td>
-      <td>${c.email||'—'}</td>
-      <td>${c.telefono||'—'}</td>
-      <td>${allReservas.filter(r=>r.cliente_id==c.id).length}</td>
-      <td>
-        <button class="btn btn-secondary btn-sm" onclick="editCliente('${c.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteCliente('${c.id}')">🗑️</button>
-      </td>
-    </tr>`).join('')
-    : '<tr><td colspan="5" style="text-align:center;color:#aaa;padding:32px">Sin resultados</td></tr>';
-}
-
-$('cli-search').oninput = renderClientes;
-$('btn-nuevo-cliente').onclick = () => openClienteModal();
-
-function openClienteModal(id) {
-  $('modal-cliente-title').textContent = id ? 'Editar Cliente' : 'Nuevo Cliente';
-  $('cli-id').value = id || '';
-  if (id) {
-    const c = allClientes.find(x => x.id == id);
-    if (c) {
-      $('cli-nombre').value   = c.nombre || '';
-      $('cli-apellido').value = c.apellido || '';
-      $('cli-email').value    = c.email || '';
-      $('cli-telefono').value = c.telefono || '';
-    }
-  } else {
-    ['cli-nombre','cli-apellido','cli-email','cli-telefono'].forEach(i => $(i).value = '');
-  }
+function openClienteModal(id){
+  $('modal-cli-title').textContent=id?'Editar Cliente':'Nuevo Cliente';
+  $('cli-id').value=id||'';
+  const c=id?allClientes.find(x=>x.id===id):null;
+  $('cli-nombre').value=c?.nombre_completo||'';$('cli-telefono').value=c?.telefono||'';$('cli-email').value=c?.email||'';
   $('modal-cliente').classList.remove('hidden');
 }
-
-window.editCliente   = id => openClienteModal(id);
-window.deleteCliente = async id => {
-  if (!confirm('¿Eliminar este cliente?')) return;
-  const { error } = await sb.from('clientes').delete().eq('id', id);
-  if (error) toast(error.message, 'error');
-  else { toast('Cliente eliminado'); await loadClientes(); }
+$('modal-cli-cancel').onclick=()=>$('modal-cliente').classList.add('hidden');
+$('modal-cli-save').onclick=async()=>{
+  const id=$('cli-id').value;
+  const p={nombre_completo:$('cli-nombre').value,telefono:$('cli-telefono').value||null,email:$('cli-email').value||null};
+  const{error}=id?await sb.from('clientes').update(p).eq('id',id):await sb.from('clientes').insert(p);
+  if(error)toast(error.message,'error');
+  else{toast(id?'Cliente actualizado ✓':'Cliente creado ✓');$('modal-cliente').classList.add('hidden');await loadClientes();}
 };
 
-$('modal-cliente-cancel').onclick = () => $('modal-cliente').classList.add('hidden');
-$('modal-cliente-save').onclick   = async () => {
-  const id = $('cli-id').value;
-  const payload = {
-    nombre:   $('cli-nombre').value,
-    apellido: $('cli-apellido').value || null,
-    email:    $('cli-email').value || null,
-    telefono: $('cli-telefono').value || null,
-  };
-  let error;
-  if (id) ({ error } = await sb.from('clientes').update(payload).eq('id', id));
-  else    ({ error } = await sb.from('clientes').insert(payload));
-  if (error) toast(error.message, 'error');
-  else {
-    toast(id ? 'Cliente actualizado ✓' : 'Cliente creado ✓');
-    $('modal-cliente').classList.add('hidden');
-    await loadClientes();
-  }
+/* SERVICIOS */
+async function loadServicios(){
+  const{data,error}=await sb.from('servicios').select('*').order('nombre');
+  if(error){toast(error.message,'error');return;}
+  allServicios=data||[];renderServicios();
+}
+function renderServicios(){
+  $('tb-servicios').innerHTML=allServicios.length?allServicios.map(s=>`<tr>
+    <td>${s.nombre}</td><td>${s.duracion_minutos?s.duracion_minutos+' min':'—'}</td>
+    <td>${fmtMoney(s.precio)}</td><td>${s.activo!==false?'✅':'❌'}</td>
+    <td><button class="btn btn-secondary btn-sm" onclick="editServicio('${s.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteServicio('${s.id}')">🗑️</button></td>
+  </tr>`).join(''):'<tr><td colspan="5" class="empty">Sin servicios</td></tr>';
+}
+$('btn-nuevo-servicio').onclick=()=>openServicioModal();
+window.editServicio=id=>openServicioModal(id);
+window.deleteServicio=async id=>{
+  if(!confirm('¿Eliminar este servicio?'))return;
+  const{error}=await sb.from('servicios').delete().eq('id',id);
+  if(error)toast(error.message,'error');else{toast('Servicio eliminado');await loadServicios();}
 };
-
-/* ─────────────────────────────
-   SERVICIOS
-───────────────────────────── */
-async function loadServicios() {
-  const { data, error } = await sb.from('servicios').select('*').order('nombre');
-  if (error) { toast(error.message, 'error'); return; }
-  allServicios = data || [];
-  renderServicios();
-}
-
-function renderServicios() {
-  $('tbs').innerHTML = allServicios.length ? allServicios.map(s => `
-    <tr>
-      <td>${s.nombre}</td>
-      <td>${s.categoria||'—'}</td>
-      <td>${s.duracion_minutos ? s.duracion_minutos + ' min' : '—'}</td>
-      <td>${fmt.money(s.precio)}</td>
-      <td>${s.activo !== false ? '✅' : '❌'}</td>
-      <td>
-        <button class="btn btn-secondary btn-sm" onclick="editServicio('${s.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteServicio('${s.id}')">🗑️</button>
-      </td>
-    </tr>`).join('')
-    : '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:32px">Sin servicios</td></tr>';
-}
-
-$('btn-nuevo-servicio').onclick = () => openServicioModal();
-
-function openServicioModal(id) {
-  $('modal-servicio-title').textContent = id ? 'Editar Servicio' : 'Nuevo Servicio';
-  $('svc-id').value = id || '';
-  if (id) {
-    const s = allServicios.find(x => x.id == id);
-    if (s) {
-      $('svc-nombre').value      = s.nombre || '';
-      $('svc-categoria').value   = s.categoria || '';
-      $('svc-duracion').value    = s.duracion_minutos || '';
-      $('svc-precio').value      = s.precio || '';
-      $('svc-descripcion').value = s.descripcion || '';
-    }
-  } else {
-    ['svc-nombre','svc-categoria','svc-duracion','svc-precio','svc-descripcion']
-      .forEach(i => $(i).value = '');
-  }
+function openServicioModal(id){
+  $('modal-svc-title').textContent=id?'Editar Servicio':'Nuevo Servicio';
+  $('svc-id').value=id||'';
+  const s=id?allServicios.find(x=>x.id===id):null;
+  $('svc-nombre').value=s?.nombre||'';$('svc-descripcion').value=s?.descripcion||'';
+  $('svc-duracion').value=s?.duracion_minutos||'';$('svc-precio').value=s?.precio||'';
+  $('svc-activo').value=s?.activo!==false?'true':'false';
   $('modal-servicio').classList.remove('hidden');
 }
-
-window.editServicio   = id => openServicioModal(id);
-window.deleteServicio = async id => {
-  if (!confirm('¿Eliminar este servicio?')) return;
-  const { error } = await sb.from('servicios').delete().eq('id', id);
-  if (error) toast(error.message, 'error');
-  else { toast('Servicio eliminado'); await loadServicios(); }
+$('modal-svc-cancel').onclick=()=>$('modal-servicio').classList.add('hidden');
+$('modal-svc-save').onclick=async()=>{
+  const id=$('svc-id').value;
+  const p={nombre:$('svc-nombre').value,descripcion:$('svc-descripcion').value||null,
+    duracion_minutos:parseInt($('svc-duracion').value)||null,precio:parseFloat($('svc-precio').value)||null,
+    activo:$('svc-activo').value==='true'};
+  const{error}=id?await sb.from('servicios').update(p).eq('id',id):await sb.from('servicios').insert(p);
+  if(error)toast(error.message,'error');
+  else{toast(id?'Servicio actualizado ✓':'Servicio creado ✓');$('modal-servicio').classList.add('hidden');await loadServicios();}
 };
 
-$('modal-servicio-cancel').onclick = () => $('modal-servicio').classList.add('hidden');
-$('modal-servicio-save').onclick   = async () => {
-  const id = $('svc-id').value;
-  const payload = {
-    nombre:            $('svc-nombre').value,
-    categoria:         $('svc-categoria').value || null,
-    duracion_minutos:  parseInt($('svc-duracion').value) || null,
-    precio:            parseFloat($('svc-precio').value) || null,
-    descripcion:       $('svc-descripcion').value || null,
-  };
-  let error;
-  if (id) ({ error } = await sb.from('servicios').update(payload).eq('id', id));
-  else    ({ error } = await sb.from('servicios').insert(payload));
-  if (error) toast(error.message, 'error');
-  else {
-    toast(id ? 'Servicio actualizado ✓' : 'Servicio creado ✓');
-    $('modal-servicio').classList.add('hidden');
-    await loadServicios();
-  }
-};
-
-/* ─────────────────────────────
-   PROFESIONALES
-───────────────────────────── */
-async function loadProfesionales() {
-  const { data, error } = await sb.from('profesionales').select('*').order('nombre');
-  if (error) { toast(error.message, 'error'); return; }
-  allProfesionales = data || [];
-  renderProfesionales();
+/* DÍAS BLOQUEADOS */
+async function loadBloqueados(){
+  const{data,error}=await sb.from('dias_bloqueados').select('*').order('fecha',{ascending:false});
+  if(error){toast(error.message,'error');return;}
+  allBloqueados=data||[];renderBloqueados();
 }
-
-function renderProfesionales() {
-  $('tbp').innerHTML = allProfesionales.length ? allProfesionales.map(p => `
-    <tr>
-      <td>${p.nombre} ${p.apellido||''}</td>
-      <td>${p.especialidad||'—'}</td>
-      <td>${p.email||'—'}</td>
-      <td>${p.telefono||'—'}</td>
-      <td>${p.activo !== false ? '✅' : '❌'}</td>
-      <td>
-        <button class="btn btn-secondary btn-sm" onclick="editProf('${p.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteProf('${p.id}')">🗑️</button>
-      </td>
-    </tr>`).join('')
-    : '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:32px">Sin profesionales</td></tr>';
+function renderBloqueados(){
+  $('tb-bloqueados').innerHTML=allBloqueados.length?allBloqueados.map(b=>`<tr>
+    <td>${b.fecha}</td><td>${b.motivo||'—'}</td><td>${b.activo!==false?'✅':'❌'}</td>
+    <td><button class="btn btn-secondary btn-sm" onclick="editBloqueo('${b.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteBloqueo('${b.id}')">🗑️</button></td>
+  </tr>`).join(''):'<tr><td colspan="4" class="empty">Sin días bloqueados</td></tr>';
 }
-
-$('btn-nuevo-prof').onclick = () => openProfModal();
-
-function openProfModal(id) {
-  $('modal-prof-title').textContent = id ? 'Editar Profesional' : 'Nueva Profesional';
-  $('prof-id').value = id || '';
-  if (id) {
-    const p = allProfesionales.find(x => x.id == id);
-    if (p) {
-      $('prof-nombre').value       = p.nombre || '';
-      $('prof-apellido').value     = p.apellido || '';
-      $('prof-especialidad').value = p.especialidad || '';
-      $('prof-email').value        = p.email || '';
-      $('prof-telefono').value     = p.telefono || '';
-    }
-  } else {
-    ['prof-nombre','prof-apellido','prof-especialidad','prof-email','prof-telefono']
-      .forEach(i => $(i).value = '');
-  }
-  $('modal-prof').classList.remove('hidden');
+$('btn-nuevo-bloqueo').onclick=()=>openBloqueoModal();
+window.editBloqueo=id=>openBloqueoModal(id);
+window.deleteBloqueo=async id=>{
+  if(!confirm('¿Eliminar este bloqueo?'))return;
+  const{error}=await sb.from('dias_bloqueados').delete().eq('id',id);
+  if(error)toast(error.message,'error');else{toast('Bloqueo eliminado');await loadBloqueados();}
+};
+function openBloqueoModal(id){
+  $('modal-blq-title').textContent=id?'Editar Bloqueo':'Bloquear Día';
+  $('blq-id').value=id||'';
+  const b=id?allBloqueados.find(x=>x.id===id):null;
+  $('blq-fecha').value=b?.fecha||'';$('blq-motivo').value=b?.motivo||'';
+  $('modal-bloqueo').classList.remove('hidden');
 }
-
-window.editProf   = id => openProfModal(id);
-window.deleteProf = async id => {
-  if (!confirm('¿Eliminar esta profesional?')) return;
-  const { error } = await sb.from('profesionales').delete().eq('id', id);
-  if (error) toast(error.message, 'error');
-  else { toast('Profesional eliminada'); await loadProfesionales(); }
+$('modal-blq-cancel').onclick=()=>$('modal-bloqueo').classList.add('hidden');
+$('modal-blq-save').onclick=async()=>{
+  const id=$('blq-id').value;
+  const p={fecha:$('blq-fecha').value,motivo:$('blq-motivo').value||null,activo:true};
+  const{error}=id?await sb.from('dias_bloqueados').update(p).eq('id',id):await sb.from('dias_bloqueados').insert(p);
+  if(error)toast(error.message,'error');
+  else{toast(id?'Bloqueo actualizado ✓':'Día bloqueado ✓');$('modal-bloqueo').classList.add('hidden');await loadBloqueados();}
 };
 
-$('modal-prof-cancel').onclick = () => $('modal-prof').classList.add('hidden');
-$('modal-prof-save').onclick   = async () => {
-  const id = $('prof-id').value;
-  const payload = {
-    nombre:       $('prof-nombre').value,
-    apellido:     $('prof-apellido').value || null,
-    especialidad: $('prof-especialidad').value || null,
-    email:        $('prof-email').value || null,
-    telefono:     $('prof-telefono').value || null,
-  };
-  let error;
-  if (id) ({ error } = await sb.from('profesionales').update(payload).eq('id', id));
-  else    ({ error } = await sb.from('profesionales').insert(payload));
-  if (error) toast(error.message, 'error');
-  else {
-    toast(id ? 'Profesional actualizada ✓' : 'Profesional creada ✓');
-    $('modal-prof').classList.add('hidden');
-    await loadProfesionales();
-  }
-};
-
-/* ─────────────────────────────
-   Close modal on backdrop click
-───────────────────────────── */
-document.querySelectorAll('.modal-backdrop').forEach(bd => {
-  bd.onclick = e => { if (e.target === bd) bd.classList.add('hidden'); };
+document.querySelectorAll('.modal-backdrop').forEach(bd=>{
+  bd.onclick=e=>{if(e.target===bd)bd.classList.add('hidden');};
 });
 </script>
 </body>
